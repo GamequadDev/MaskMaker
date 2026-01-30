@@ -67,7 +67,7 @@ public class FurnaceEvent : MonoBehaviour
             }
         }
 
-        indicator.anchoredPosition = new Vector2(currentX, 0);
+        indicator.anchoredPosition = new Vector2(currentX, indicator.anchoredPosition.y);
     }
 
     void CheckSuccess()
