@@ -530,8 +530,8 @@ MonoBehaviour:
   indicator: {fileID: 2069560977}
   bar: {fileID: 1523274945}
   target: {fileID: 1812952405}
-  speed: 100
-  barWidth: 0
+  speed: 300
+  barWidth: 800
 --- !u!4 &1718054896
 Transform:
   m_ObjectHideFlags: 0
@@ -582,7 +582,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -206, y: -106}
-  m_SizeDelta: {x: 200, y: 100}
+  m_SizeDelta: {x: 120, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1812952406
 MonoBehaviour:
