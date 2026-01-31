@@ -458,6 +458,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2963650730186350155}
   - component: {fileID: 1036503699954230570}
+  - component: {fileID: 8442074400363553664}
   m_Layer: 0
   m_Name: FurnaceHUD
   m_TagString: Untagged
@@ -493,3 +494,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c2c008d74cca0434813730e33f94946, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &8442074400363553664
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8126327953002573892}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c8ca06593e530ea6870e5b2f36d6e36, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerMovement: {fileID: 0}
