@@ -73,11 +73,11 @@ public class MaskGenerator : MonoBehaviour
         // Utwórz nową teksturę
         generatedTexture = new Texture2D(textureWidth, textureHeight);
         
-        // Wypełnij białym tłem
+        // Wypełnij przezroczystym tłem
         Color[] fillPixels = new Color[textureWidth * textureHeight];
         for (int i = 0; i < fillPixels.Length; i++)
         {
-            fillPixels[i] = Color.white;
+            fillPixels[i] = Color.clear; // Przezroczyste tło zamiast białego
         }
         generatedTexture.SetPixels(fillPixels);
         

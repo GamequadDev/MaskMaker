@@ -38,7 +38,7 @@ public class MaskLinePainter : MonoBehaviour, IPointerDownHandler, IDragHandler
         drawableTexture = new Texture2D(width, height);
         
         Color[] fillPixels = new Color[width * height];
-        for (int i = 0; i < fillPixels.Length; i++) fillPixels[i] = Color.white;
+        for (int i = 0; i < fillPixels.Length; i++) fillPixels[i] = Color.clear; // Przezroczyste tło
         
         drawableTexture.SetPixels(fillPixels);
         drawableTexture.Apply();
