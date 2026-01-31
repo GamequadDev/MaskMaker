@@ -22,30 +22,26 @@ public class LoadMaskButton : MonoBehaviour
     
     [Header("Painting")]
     public MaskLinePainter maskLinePainter;
+    
+    // Prywatne zmienne do przechowywania wybranej maski (niezależne od wyglądu przycisku)
+    private Sprite currentMaskSprite;
+    private Sprite currentOutlineSprite;
 
     void Awake()
     {
-        // Pobierz Image tego GameObject
+        // Już nie potrzebujemy pobierać Image z tego obiektu jako źródła danych
+        // Ale możemy zostawić referencje jeśli są potrzebne do czegoś innego
         maskImage = GetComponent<Image>();
-        if (maskImage == null)
-        {
-            Debug.LogWarning("LoadMaskButton: Brak komponentu Image na tym GameObject!");
-        }
-        
-        // Pobierz Image z dziecka o nazwie "OutlineImage"
-        Transform outlineChild = transform.Find("OutlineImage");
-        if (outlineChild != null)
-        {
-            outlineImage = outlineChild.GetComponent<Image>();
-            if (outlineImage == null)
-            {
-                Debug.LogWarning($"LoadMaskButton: Dziecko 'OutlineImage' nie ma komponentu Image!");
-            }
-        }
-        else
-        {
-            Debug.LogWarning("LoadMaskButton: Nie znaleziono dziecka o nazwie 'OutlineImage'!");
-        }
+    }
+    
+    /// <summary>
+    /// Ustawia maskę do użycia (nie zmienia wyglądu przycisku!)
+    /// </summary>
+    public void SetMaskData(Sprite mask, Sprite outline)
+    {
+        currentMaskSprite = mask;
+        currentOutlineSprite = outline;
+        Debug.Log($"LoadMaskButton: Ustawiono dane - Maska: {(mask ? mask.name : "null")}, Outline: {(outline ? outline.name : "null")}");
     }
     
     /// <summary>
@@ -73,24 +69,16 @@ public class LoadMaskButton : MonoBehaviour
     }
 
     /// <summary>
-    /// Aktualizuje dane masek - odczytuje sprite z maskImage i outlineImage,
-    /// a następnie zapisuje do wszystkich obiektów docelowych.
-    /// WYWOŁAJ TĘ METODĘ po zmianie sprite'ów w maskImage/outlineImage!
+    /// Aktualizuje dane masek - używa zapamiętanych sprite'ów (currentMaskSprite)
     /// </summary>
     public void UpdateMaskData()
     {
-        if (maskImage == null || outlineImage == null)
-        {
-            Debug.LogWarning("LoadMaskButton: maskImage lub outlineImage są null! Nie można zaktualizować danych.");
-            return;
-        }
+        Sprite maskSprite = currentMaskSprite;
+        Sprite outlineSprite = currentOutlineSprite;
         
-        Sprite maskSprite = maskImage.sprite;
-        Sprite outlineSprite = outlineImage.sprite;
-        
-        if (maskSprite == null || outlineSprite == null)
+        if (maskSprite == null)
         {
-            Debug.LogWarning("LoadMaskButton: Brak sprite'ów w maskImage lub outlineImage!");
+            Debug.LogWarning("LoadMaskButton: Nie wybrano żadnej maski (currentMaskSprite jest null)!");
             return;
         }
         
@@ -116,7 +104,7 @@ public class LoadMaskButton : MonoBehaviour
              maskLinePainter.Initialize(maskTex);
         }
         
-        Debug.Log($"✓ Zaktualizowano dane masek: {maskSprite.name} (mask) + {outlineSprite.name} (outline)");
+        Debug.Log($"✓ Zaktualizowano dane masek: {maskSprite.name} (mask) + {(outlineSprite ? outlineSprite.name : "null")} (outline)");
     }
     
     /// <summary>

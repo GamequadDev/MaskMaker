@@ -87,16 +87,9 @@ public class SelectMaskManager : MonoBehaviour, IPointerDownHandler
             // Zaktualizuj dane w LoadMaskButton (jeśli przypisany)
             if (loadMaskButton != null)
             {
-                // WAŻNE: Najpierw przekaż wybrane Sprite'y do LoadMaskButton!
-                if (loadMaskButton.maskImage != null)
-                {
-                    loadMaskButton.maskImage.sprite = selectedSprite;
-                }
-                
-                if (loadMaskButton.outlineImage != null && sourceOutlineImage != null)
-                {
-                    loadMaskButton.outlineImage.sprite = sourceOutlineImage.sprite;
-                }
+                // Przekaż dane (bez zmieniania wyglądu przycisku)
+                Sprite outlineSprite = (sourceOutlineImage != null) ? sourceOutlineImage.sprite : null;
+                loadMaskButton.SetMaskData(selectedSprite, outlineSprite);
                 
                 // Teraz odśwież dane i wygeneruj
                 loadMaskButton.UpdateMaskData();

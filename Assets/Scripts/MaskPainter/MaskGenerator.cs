@@ -21,12 +21,12 @@ public class MaskGenerator : MonoBehaviour
     [Tooltip("Lista kolorów z których będzie losowane - odpowiada kolorom z ColorSelectorManager")]
     public Color[] availableColors = new Color[]
     {
-        Color.red,      // SetRed()
-        Color.blue,     // SetBlue()
-        Color.green,    // SetGreen()
-        Color.black,    // setBlack()
-        Color.magenta,  // setPurple()
-        Color.white     // setWhite()
+        Color.red,      
+        Color.blue,     
+        new Color32(28, 186, 42, 255),  // SetGreen()
+        Color.black,    
+        new Color32(255, 227, 0, 255),  // setYellow()
+        new Color32(229, 181, 79, 255)  // setBeige()
     };
     
     [Header("Parametry Generacji")]
