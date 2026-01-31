@@ -48,34 +48,44 @@ public class MaskLinePainter : MonoBehaviour, IPointerDownHandler, IDragHandler
 
         canvasImage.texture = drawableTexture;
         
-        // Pobierz maskę z SelectMaskManager jeśli nie jest ręcznie przypisana
-        if (maskTexture == null && SelectMaskManager.instance != null)
-        {
-            maskTexture = SelectMaskManager.instance.GetSelectedMaskTexture();
-            if (maskTexture != null)
-            {
-                string mode = useAlphaChannel ? "ALFA" : "JASNOSC";
-                Debug.Log($"MaskLinePainter: Pobrano maske '{maskTexture.name}' | Tryb: {mode} | Threshold: {maskThreshold}");
-            }
-        }
-        
+        // Jeśli maska jest już przypisana w inspektorze, użyj jej
         if (maskTexture != null)
         {
-            PrepareMask(width, height);
-            
-            // Ustaw obwódkę jeśli jest przypisana
-            if (outlineImage != null)
-            {
-                outlineImage.sprite = Sprite.Create(
-                    maskTexture,
-                    new Rect(0, 0, maskTexture.width, maskTexture.height),
-                    new Vector2(0.5f, 0.5f)
-                );
-            }
+            Initialize(maskTexture);
         }
-        else
+    }
+
+    /// <summary>
+    /// Inicjalizuje malowanie na podstawie podanej maski
+    /// </summary>
+    public void Initialize(Texture2D newMask)
+    {
+        if (newMask == null) 
         {
-            Debug.LogWarning("Brak maskTexture! Przypisz teksturę maski w inspektorze.");
+            Debug.LogWarning("MaskLinePainter: Próba inicjalizacji null maską!");
+            return;
+        }
+
+        maskTexture = newMask;
+        string mode = useAlphaChannel ? "ALFA" : "JASNOSC";
+        Debug.Log($"MaskLinePainter: Inicjalizacja maska '{maskTexture.name}' | Tryb: {mode}");
+
+        if (rectTransform == null) rectTransform = GetComponent<RectTransform>();
+        if (canvasImage == null) canvasImage = GetComponent<RawImage>();
+
+        int width = (int)rectTransform.rect.width;
+        int height = (int)rectTransform.rect.height;
+        
+        PrepareMask(width, height);
+        
+        // Ustaw obwódkę jeśli jest przypisana
+        if (outlineImage != null)
+        {
+            outlineImage.sprite = Sprite.Create(
+                maskTexture,
+                new Rect(0, 0, maskTexture.width, maskTexture.height),
+                new Vector2(0.5f, 0.5f)
+            );
         }
     }
 

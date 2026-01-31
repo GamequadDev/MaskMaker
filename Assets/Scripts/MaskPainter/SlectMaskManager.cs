@@ -4,7 +4,6 @@ using UnityEngine.EventSystems;
 
 public class SelectMaskManager : MonoBehaviour, IPointerDownHandler
 {
-    public static SelectMaskManager instance;
     public Image choosedMaskImage;
     public Image choosedOutlineImage; // Obiekt, do którego przypisujemy wybraną maskę
     
@@ -12,52 +11,94 @@ public class SelectMaskManager : MonoBehaviour, IPointerDownHandler
     [Tooltip("Opcjonalne - przypisz LoadMaskButton który ma zaktualizować dane masek")]
     public LoadMaskButton loadMaskButton;
     
-    private Image buttonImage; // Image tego przycisku
-    private Image outlineButtonImage; // Image tego przycisku
+    [Header("Źródła (Skąd brać wygląd)")]
+    [Tooltip("Obiekt z którego bierzemy maskę (np. dziecko 'Icon'). Jeśli puste, spróbuje znaleźć automatycznie.")]
+    public Image sourceMaskImage;
+    [Tooltip("Obiekt z którego bierzemy obrys (np. dziecko 'Outline'). Jeśli puste, spróbuje znaleźć automatycznie.")]
+    public Image sourceOutlineImage;
+    
+    private Image buttonImage; // Image tego przycisku (może być tłem)
     private Sprite selectedSprite; // Aktualnie wybrana maska
 
     void Awake()
     {
-        // Singleton pattern
-        if (instance == null)
+        // 1. Próba znalezienia źródła maski (Icon)
+        // Jeśli nie przypisano ręcznie w inspektorze:
+        if (sourceMaskImage == null)
         {
-            instance = this;
-        }
-        else
-        {
-            Debug.LogWarning("Więcej niż jedna instancja SelectMaskManager!");
-        }
-        
-        buttonImage = GetComponent<Image>();
-        
-        // Pobierz Image z dziecka tego obiektu (dla outline)
-        if (transform.childCount > 0)
-        {
-            outlineButtonImage = transform.GetChild(0).GetComponent<Image>();
-            if (outlineButtonImage == null)
+            // A. Czy istnieje dziecko "Icon"? (Jeśli skrypt jest na Buttonie)
+            Transform iconTrans = transform.Find("Icon");
+            if (iconTrans != null)
             {
-                Debug.LogWarning($"SelectMaskManager: Dziecko '{transform.GetChild(0).name}' nie ma komponentu Image!");
+                sourceMaskImage = iconTrans.GetComponent<Image>();
+            }
+            // B. Jeśli nie ma dziecka "Icon", zakładamy, że TEN OBIEKT to Icon (Jeśli skrypt jest na Iconie)
+            else
+            {
+                sourceMaskImage = GetComponent<Image>();
             }
         }
-        else
+        
+        // 2. Próba znalezienia źródła obrysu (Outline)
+        if (sourceOutlineImage == null)
         {
-            Debug.LogWarning("SelectMaskManager: Brak dziecka obiektu dla outline!");
+            // A. Szukamy "Outline" bezpośrednio w dzieciach (dla przypadku Skrypt na Iconie -> dziecko Outline)
+            Transform outlineTrans = transform.Find("Outline");
+            
+            // B. Jeśli nie znaleziono, szukamy głębiej (dla przypadku Skrypt na Buttonie -> Icon -> Outline)
+            if (outlineTrans == null && transform.childCount > 0)
+            {
+                 // Sprawdź czy któreś z dzieci ma Outline
+                 foreach(Transform child in transform)
+                 {
+                     Transform deepOutline = child.Find("Outline");
+                     if (deepOutline != null)
+                     {
+                         outlineTrans = deepOutline;
+                         break;
+                     }
+                 }
+            }
+             
+            if (outlineTrans != null)
+            {
+                sourceOutlineImage = outlineTrans.GetComponent<Image>();
+            }
         }
+        
+        if (sourceMaskImage == null) Debug.LogWarning($"SelectMaskManager: Nie znaleziono źródła maski w '{name}'!");
+        if (sourceOutlineImage == null) Debug.LogWarning($"SelectMaskManager: Nie znaleziono źródła obrysu w '{name}'!");
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (buttonImage != null && buttonImage.sprite != null && choosedMaskImage != null)
+        if (sourceMaskImage != null && sourceMaskImage.sprite != null && choosedMaskImage != null)
         {
-            selectedSprite = buttonImage.sprite;
+            selectedSprite = sourceMaskImage.sprite;
             choosedMaskImage.sprite = selectedSprite;
-            choosedOutlineImage.sprite = outlineButtonImage.sprite;
+            
+            if (sourceOutlineImage != null && choosedOutlineImage != null)
+            {
+                choosedOutlineImage.sprite = sourceOutlineImage.sprite;
+            }
             
             Debug.Log($"Wybrano maskę: {selectedSprite.name}");
             
             // Zaktualizuj dane w LoadMaskButton (jeśli przypisany)
             if (loadMaskButton != null)
             {
+                // WAŻNE: Najpierw przekaż wybrane Sprite'y do LoadMaskButton!
+                if (loadMaskButton.maskImage != null)
+                {
+                    loadMaskButton.maskImage.sprite = selectedSprite;
+                }
+                
+                if (loadMaskButton.outlineImage != null && sourceOutlineImage != null)
+                {
+                    loadMaskButton.outlineImage.sprite = sourceOutlineImage.sprite;
+                }
+                
+                // Teraz odśwież dane i wygeneruj
                 loadMaskButton.UpdateMaskData();
             }
         }

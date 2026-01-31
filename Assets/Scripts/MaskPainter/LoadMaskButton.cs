@@ -17,6 +17,12 @@ public class LoadMaskButton : MonoBehaviour
     public GameObject maskObjectGenerated;
     public GameObject maskObjectGeneratedOutline;
     
+    [Header("Generator")]
+    public MaskGenerator maskGenerator;
+    
+    [Header("Painting")]
+    public MaskLinePainter maskLinePainter;
+
     void Awake()
     {
         // Pobierz Image tego GameObject
@@ -90,6 +96,25 @@ public class LoadMaskButton : MonoBehaviour
         
         // Zapisz do wszystkich obiektów docelowych
         SaveToObjects(maskSprite, outlineSprite);
+        
+        // Wygeneruj maskę w generatorze
+        if (maskGenerator != null)
+        {
+            Texture2D maskTex = GetTextureFromSprite(maskSprite);
+            maskGenerator.GenerateRandomMask(maskTex);
+            
+            // Zainicjalizuj malowanie tą samą maską
+            if (maskLinePainter != null)
+            {
+                maskLinePainter.Initialize(maskTex);
+            }
+        }
+        else if (maskLinePainter != null)
+        {
+            // Jeśli nie ma generatora, ale jest painter, też zainicjalizuj
+             Texture2D maskTex = GetTextureFromSprite(maskSprite);
+             maskLinePainter.Initialize(maskTex);
+        }
         
         Debug.Log($"✓ Zaktualizowano dane masek: {maskSprite.name} (mask) + {outlineSprite.name} (outline)");
     }

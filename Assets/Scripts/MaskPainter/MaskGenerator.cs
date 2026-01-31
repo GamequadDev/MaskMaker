@@ -37,9 +37,7 @@ public class MaskGenerator : MonoBehaviour
     [Tooltip("Opcjonalny RawImage do wyświetlenia wygenerowanej maski")]
     public RawImage previewImage;
     
-    [Header("Auto-generacja")]
-    [Tooltip("Czy generować maskę automatycznie przy starcie sceny?")]
-    public bool generateOnStart = true;
+
     
     [Header("Wynik")]
     [Tooltip("Wygenerowana tekstura - można ją później porównać z namalowaną")]
@@ -48,35 +46,31 @@ public class MaskGenerator : MonoBehaviour
     private int textureWidth = 512;
     private int textureHeight = 512;
     
-    void Start()
-    {
-        // Pobierz maskę z SelectMaskManager jeśli nie jest ręcznie przypisana
-        if (maskTexture == null && SelectMaskManager.instance != null)
-        {
-            maskTexture = SelectMaskManager.instance.GetSelectedMaskTexture();
-            if (maskTexture != null)
-            {
-                string mode = useAlphaChannel ? "ALFA" : "JASNOSC";
-                Debug.Log($"MaskGenerator: Pobrano maske '{maskTexture.name}' | Tryb: {mode} | Threshold: {maskThreshold}");
-            }
-        }
-        
-        if (generateOnStart)
-        {
-            GenerateRandomMask();
-        }
-    }
+
     
     /// <summary>
     /// Generuje losowo pokolorowaną maskę
     /// </summary>
+    /// <summary>
+    /// Generuje losowo pokolorowaną maskę na podstawie podanej tekstury
+    /// </summary>
+    public void GenerateRandomMask(Texture2D newMaskTexture)
+    {
+        if (newMaskTexture != null)
+        {
+            maskTexture = newMaskTexture;
+            string mode = useAlphaChannel ? "ALFA" : "JASNOSC";
+            Debug.Log($"MaskGenerator: Otrzymano nową maskę '{maskTexture.name}' | Tryb: {mode}");
+        }
+        
+        GenerateRandomMask();
+    }
+    
+    /// <summary>
+    /// Generuje losowo pokolorowaną maskę używając aktualnie przypisanej maskTexture
+    /// </summary>
     public void GenerateRandomMask()
     {
-        // Spróbuj pobrać maskę z SelectMaskManager jeśli nie jest przypisana
-        if (maskTexture == null && SelectMaskManager.instance != null)
-        {
-            maskTexture = SelectMaskManager.instance.GetSelectedMaskTexture();
-        }
         
         if (maskTexture == null)
         {
@@ -348,7 +342,7 @@ public class MaskGenerator : MonoBehaviour
     /// Generuje maskę przy starcie gry (opcjonalne)
     /// </summary>
     [ContextMenu("Generate Random Mask")]
-    public void GenerateOnStart()
+    public void GenerateManual()
     {
         GenerateRandomMask();
     }
