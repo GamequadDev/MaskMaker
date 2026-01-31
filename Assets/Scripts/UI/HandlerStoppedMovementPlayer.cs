@@ -10,7 +10,7 @@ public class HandlerStoppedMovementPlayer : MonoBehaviour
         
         if (playerMovement == null)
         {
-            playerMovement = FindObjectOfType<PlayerMovement>();
+            playerMovement = FindFirstObjectByType<PlayerMovement>();
         }
     }
 
