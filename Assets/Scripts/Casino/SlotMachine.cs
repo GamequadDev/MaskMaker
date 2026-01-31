@@ -32,7 +32,7 @@ public class SlotMachine : MonoBehaviour
     {
         // 1. Przygotowanie UI
         spinButton.interactable = false; // Blokujemy przycisk
-        resultText.text = "Losowanie...";
+        resultText.text = "Waiting...";
         resultText.color = Color.yellow;
 
         // 2. Dynamiczne sprawdzenie liczby owoców
@@ -84,13 +84,13 @@ public class SlotMachine : MonoBehaviour
         // Warunek wygranej: wszystkie trzy indeksy muszą być identyczne
         if (r1 == r2 && r2 == r3)
         {
-            resultText.text = "WIELKA WYGRANA!";
+            resultText.text = "MEGA BIG WIN!!!";
             resultText.color = Color.green;
             // Tutaj możesz dodać dźwięk wygranej lub efekt cząsteczkowy
         }
         else
         {
-            resultText.text = "Spróbuj ponownie";
+            resultText.text = "Try again!";
             resultText.color = Color.white;
         }
     }
