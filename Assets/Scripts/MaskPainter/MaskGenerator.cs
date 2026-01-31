@@ -85,7 +85,6 @@ public class MaskGenerator : MonoBehaviour
         if (availableColors == null || availableColors.Length == 0)
         {
             Debug.LogError("Brak dostępnych kolorów!");
-            Debug.LogError("Brak dostępnych kolorów!");
             return;
         }
 

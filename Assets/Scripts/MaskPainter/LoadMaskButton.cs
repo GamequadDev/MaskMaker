@@ -44,6 +44,11 @@ public class LoadMaskButton : MonoBehaviour
         Debug.Log($"LoadMaskButton: Ustawiono dane - Maska: {(mask ? mask.name : "null")}, Outline: {(outline ? outline.name : "null")}");
     }
     
+    public Sprite GetCurrentOutlineSprite()
+    {
+        return currentOutlineSprite;
+    }
+    
     /// <summary>
     /// Pokazuje panel wyboru masek, ukrywa panel malowania
     /// </summary>
