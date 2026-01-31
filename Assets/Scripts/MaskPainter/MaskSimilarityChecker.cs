@@ -71,34 +71,32 @@ public class MaskSimilarityChecker : MonoBehaviour
                 Color targetColor = targetTexture.GetPixel(x, y);
                 Color paintedColor = paintedTexture.GetPixel(x, y);
                 
-                // Pomiń piksele które są przezroczyste w obu maskach
-                // (nie chcemy liczyć obszarów gdzie nic nie namalowano)
+                // Sprawdź przezroczystość (czy piksel jest pusty)
                 bool targetTransparent = targetColor.a < 0.1f;
                 bool paintedTransparent = paintedColor.a < 0.1f;
                 
+                // Przypadek 1: Oba puste -> Ignorujemy (tło)
                 if (targetTransparent && paintedTransparent)
                 {
-                    continue; // Oba przezroczyste - pomiń
+                    continue; 
                 }
                 
+                // Przypadek 2: Niezgodność obecności (jeden jest, drugiego nie ma) -> BŁĄD
+                if (targetTransparent != paintedTransparent)
+                {
+                    // Jeden piksel jest, drugi nie - to duża różnica, więc nie zwiększamy matchingPixels
+                    totalPixels++;
+                    continue; 
+                }
+                
+                // Przypadek 3: Oba są widoczne -> Porównujemy kolory RGB
                 totalPixels++;
                 
-                // Debug - pokaż pierwsze kilka przykładów
-                if (showDebug && debugSamples < 5 && (x % 50 == 0 && y % 50 == 0))
-                {
-                    float diff = Mathf.Abs(targetColor.r - paintedColor.r) +
-                                Mathf.Abs(targetColor.g - paintedColor.g) +
-                                Mathf.Abs(targetColor.b - paintedColor.b);
-                    Debug.Log($"Pixel ({x},{y}): Target={ColorToString(targetColor)}, Painted={ColorToString(paintedColor)}, Diff={diff:F3}");
-                    debugSamples++;
-                }
-                
-                // Czy kolory są podobne? (zwiększona tolerancja do 0.5)
                 float colorDiff = Mathf.Abs(targetColor.r - paintedColor.r) +
                                   Mathf.Abs(targetColor.g - paintedColor.g) +
                                   Mathf.Abs(targetColor.b - paintedColor.b);
                 
-                if (colorDiff < 0.5f) // Kolory pasują (zwiększona tolerancja)
+                if (colorDiff < 0.5f) // Kolory pasują
                 {
                     matchingPixels++;
                 }
@@ -116,27 +114,22 @@ public class MaskSimilarityChecker : MonoBehaviour
     /// <summary>
     /// Wczytaj teksturę z pliku PNG z poprawnymi ustawieniami importu
     /// </summary>
+    /// <summary>
+    /// Wczytaj teksturę z pliku PNG (Loading directly from IO to avoid Cache issues)
+    /// </summary>
     private Texture2D LoadTextureFromFile(string path)
     {
-#if UNITY_EDITOR
-        // Upewnij się że import settings są poprawne
-        ConfigureTextureImportSettings(path);
-        
-        // W edytorze użyj AssetDatabase
-        Texture2D texture = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>(path);
-        if (texture == null)
+        if (!System.IO.File.Exists(path))
         {
-            Debug.LogWarning($"Nie znaleziono tekstury: {path}");
-            return null;
+             Debug.LogError($"Nie znaleziono pliku: {path}");
+             return null;
         }
+
+        byte[] fileData = System.IO.File.ReadAllBytes(path);
+        Texture2D texture = new Texture2D(2, 2);
+        texture.LoadImage(fileData); // This auto-resizes
         
-        Debug.Log($"✓ Wczytano teksturę: {path} ({texture.width}x{texture.height}, format: {texture.format})");
         return texture;
-#else
-        // W buildzie można użyć Resources lub innej metody
-        Debug.LogWarning("LoadTextureFromFile działa tylko w edytorze Unity!");
-        return null;
-#endif
     }
     
     /// <summary>

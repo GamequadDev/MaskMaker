@@ -22,16 +22,30 @@ public class LoadMaskButton : MonoBehaviour
     
     [Header("Painting")]
     public MaskLinePainter maskLinePainter;
+
+    [Header("Mask Data")]
+    public MaskData maskData;
     
     // Prywatne zmienne do przechowywania wybranej maski (niezależne od wyglądu przycisku)
     private Sprite currentMaskSprite;
     private Sprite currentOutlineSprite;
+    private Button myButton;
 
     void Awake()
     {
         // Już nie potrzebujemy pobierać Image z tego obiektu jako źródła danych
         // Ale możemy zostawić referencje jeśli są potrzebne do czegoś innego
         maskImage = GetComponent<Image>();
+        myButton = GetComponent<Button>();
+    }
+    
+    void Start()
+    {
+        // Zablokuj przycisk na starcie, dopóki gracz czegoś nie wybierze
+        if (myButton != null)
+        {
+            myButton.interactable = false;
+        }
     }
     
     /// <summary>
@@ -41,6 +55,13 @@ public class LoadMaskButton : MonoBehaviour
     {
         currentMaskSprite = mask;
         currentOutlineSprite = outline;
+        
+        // Odblokuj przycisk skoro mamy wybraną maskę
+        if (myButton != null)
+        {
+            myButton.interactable = true;
+        }
+        
         Debug.Log($"LoadMaskButton: Ustawiono dane - Maska: {(mask ? mask.name : "null")}, Outline: {(outline ? outline.name : "null")}");
     }
     
@@ -89,6 +110,17 @@ public class LoadMaskButton : MonoBehaviour
         
         // Zapisz do wszystkich obiektów docelowych
         SaveToObjects(maskSprite, outlineSprite);
+        
+        // Zapisz typ maski do danych
+        if (maskData != null)
+        {
+            maskData.typeCurrent = maskSprite.name;
+            Debug.Log($"LoadMaskButton: Zapisano typ maski '{maskData.typeCurrent}' do MaskData.");
+        }
+        else
+        {
+             Debug.LogWarning("LoadMaskButton: Brak przypisanego MaskData!");
+        }
         
         // Wygeneruj maskę w generatorze
         if (maskGenerator != null)
