@@ -530,11 +530,7 @@ MonoBehaviour:
   indicator: {fileID: 2069560977}
   bar: {fileID: 1523274945}
   target: {fileID: 1812952405}
-  movingRight: 1
-  speed: 300
-  barWidth: 800
-  minX: 0
-  maxX: 0
+
 --- !u!4 &1718054896
 Transform:
   m_ObjectHideFlags: 0
