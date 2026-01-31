@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8581824261791200073
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2565276619474776908}
+  - component: {fileID: 5142243676304401977}
+  m_Layer: 0
+  m_Name: PredefinedMasks
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2565276619474776908
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8581824261791200073}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 1594.6082, y: 494.00748, z: -0.49954173}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5142243676304401977
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8581824261791200073}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6ef5a69d82d5614bbb00da2dc4fadb8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  masksFirst:
+  - {fileID: 2800000, guid: 30cd2f8d8f709c446b13dbf395d43924, type: 3}
+  - {fileID: 2800000, guid: 31991aa49eca04c468325a8882a2cef1, type: 3}
+  masksSecond:
+  - {fileID: 2800000, guid: 07c9691c6dd1f5642836286c4f8b158e, type: 3}
+  - {fileID: 2800000, guid: 036151f256e344d41950c1143412a61c, type: 3}
+  masksThird:
+  - {fileID: 2800000, guid: 4f1c3a0643305d04eafd7c41d7e36445, type: 3}
+  - {fileID: 2800000, guid: 1676dc5bb5fdeac4dafe697243622812, type: 3}
+  masksFourth:
+  - {fileID: 2800000, guid: 840a677d5ca608b4ab01f602c72ddbde, type: 3}
+  - {fileID: 2800000, guid: f08178f66854a2949a6d79a666e4053a, type: 3}
+  masksFifth:
+  - {fileID: 2800000, guid: ffd410ef163279d42bc90cd72305b9c6, type: 3}
+  - {fileID: 2800000, guid: fb7b06b2c3493ef4eaeca9dc74698c61, type: 3}
