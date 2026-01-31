@@ -187,6 +187,8 @@ public class LoadMaskButton : MonoBehaviour
         newTexture.SetPixels(pixels);
         newTexture.Apply();
         
+        newTexture.name = sprite.name; // WAŻNE: Zachowaj nazwę (np. "Mask_1") dla generatora!
+        
         return newTexture;
     }
     

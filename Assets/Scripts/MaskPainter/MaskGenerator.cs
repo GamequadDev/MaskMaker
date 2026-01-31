@@ -34,6 +34,10 @@ public class MaskGenerator : MonoBehaviour
     [Range(5, 50)]
     public int regionSize = 20;
     
+    [Header("Generator")]
+    [Tooltip("Referencja do MasksHolder z listami gotowych masek")]
+    public MasksHolder masksHolder;
+    
     [Tooltip("Opcjonalny RawImage do wyświetlenia wygenerowanej maski")]
     public RawImage previewImage;
     
@@ -81,8 +85,17 @@ public class MaskGenerator : MonoBehaviour
         if (availableColors == null || availableColors.Length == 0)
         {
             Debug.LogError("Brak dostępnych kolorów!");
+            Debug.LogError("Brak dostępnych kolorów!");
             return;
         }
+
+        // 1. Sprawdź czy mamy gotową maskę w MasksHolder
+        if (TryUsePredefinedMask())
+        {
+            return; // Użyto gotowej maski, kończymy
+        }
+
+        // 2. Jeśli nie, generuj proceduralnie
         
         // Utwórz nową teksturę
         generatedTexture = new Texture2D(textureWidth, textureHeight);
@@ -107,6 +120,50 @@ public class MaskGenerator : MonoBehaviour
         }
         
         Debug.Log($"Wygenerowano losową maskę rozmiaru {textureWidth}x{textureHeight}");
+    }
+    
+    /// <summary>
+    /// Próbuje pobrać gotową maskę z MasksHolder na podstawie nazwy wybranej maski
+    /// </summary>
+    private bool TryUsePredefinedMask()
+    {
+        if (masksHolder == null) return false;
+
+        string maskName = maskTexture.name;
+        Texture2D predefinedTexture = null;
+        System.Collections.Generic.List<Texture2D> targetList = null;
+
+        // Dopasuj listę na podstawie nazwy (zakładamy "Mask_1", "Mask_2" itd.)
+        if (maskName.Contains("Mask_1")) targetList = masksHolder.masksFirst;
+        else if (maskName.Contains("Mask_2")) targetList = masksHolder.masksSecond;
+        else if (maskName.Contains("Mask_3")) targetList = masksHolder.masksThird;
+        else if (maskName.Contains("Mask_4")) targetList = masksHolder.masksFourth;
+        else if (maskName.Contains("Mask_5")) targetList = masksHolder.masksFifth;
+
+        // Jeśli znaleziono listę i ma ona element
+        if (targetList != null && targetList.Count > 0)
+        {
+            predefinedTexture = targetList[0];
+            targetList.RemoveAt(0); // Usuń wykorzystaną
+            
+            Debug.Log($"MaskGenerator: Używam gotowej maski dla {maskName} (zostało {targetList.Count})");
+        }
+
+        if (predefinedTexture != null)
+        {
+            // Przypisz gotową teksturę jako wynik
+            generatedTexture = predefinedTexture; 
+            
+            // Pokaż podgląd
+            if (previewImage != null)
+            {
+                previewImage.texture = generatedTexture;
+            }
+            
+            return true;
+        }
+
+        return false;
     }
     
     /// <summary>
