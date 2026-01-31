@@ -28,4 +28,12 @@ public class CustomerMovement : MonoBehaviour
         Debug.Log("Klient obsłużony, wychodzi...");
         Destroy(gameObject, 10f); 
     }
+
+    public bool HasReachedDestination()
+    {
+        if (agent == null) return false;
+        if (agent.pathPending) return false;
+        if (agent.remainingDistance > agent.stoppingDistance) return false;
+        return true;
+    }
 }
