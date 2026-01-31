@@ -45,4 +45,9 @@ public class HandlerStoppedMovementPlayer : MonoBehaviour
         }
     }
 
+    public void Close()
+    {
+        gameObject.SetActive(false);
+    }
+
 }
