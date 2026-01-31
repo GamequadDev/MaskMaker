@@ -58,8 +58,18 @@ public class CheckAccuracyButton : MonoBehaviour
         
         // Sprawdź podobieństwo
         float accuracy = similarityChecker.CheckSimilarity();
-        maskData.accuracyPercent = (int)accuracy;
-        EditorUtility.SetDirty(maskData);
+        
+        if (maskData != null)
+        {
+            maskData.accuracyPercent = (int)accuracy;
+#if UNITY_EDITOR
+            EditorUtility.SetDirty(maskData);
+#endif
+        }
+        else
+        {
+            Debug.LogWarning("CheckAccuracyButton: Brak przypisanego MaskData! Wynik nie został zapisany.");
+        }
         
         // Wyświetl wynik
         string message = $"ACCURACY SCORE OF YOUR MASK: {accuracy:F1}%";
@@ -101,4 +111,9 @@ public class CheckAccuracyButton : MonoBehaviour
             resultTextTMP.gameObject.SetActive(false);
         }
     }
+
+    /// <summary>
+    /// Sprawdza czy namalowana maska jest pusta. Jeśli tak, zapisuje szablon jako namalowaną maskę.
+    /// </summary>
+    // private void EnsurePaintedMaskNotEmpty() ... USUNIĘTE NA PROŚBĘ GRACZA (Opcja 1)
 }

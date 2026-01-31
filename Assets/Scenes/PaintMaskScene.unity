@@ -1631,9 +1631,9 @@ RectTransform:
   - {fileID: 1149394168}
   m_Father: {fileID: 253716062}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 128, y: -128}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 256, y: 256}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &500339258
@@ -2231,9 +2231,9 @@ RectTransform:
   - {fileID: 885849838}
   m_Father: {fileID: 253716062}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1439.88, y: -128}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 256, y: 256}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &890225679
@@ -3887,6 +3887,7 @@ MonoBehaviour:
   resultText: {fileID: 0}
   resultTextTMP: {fileID: 1207887101}
   checkButton: {fileID: 1319273949}
+  maskData: {fileID: 11400000, guid: b1f0ec1680a731947b26736b195a620c, type: 2}
 --- !u!114 &1319273951
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3958,9 +3959,9 @@ RectTransform:
   - {fileID: 1055353185}
   m_Father: {fileID: 253716062}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1111.91, y: -128}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 256, y: 256}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1342045113
@@ -4524,9 +4525,9 @@ RectTransform:
   - {fileID: 471162676}
   m_Father: {fileID: 253716062}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 783.94, y: -128}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 256, y: 256}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1475464978
@@ -4783,7 +4784,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1631929969
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5397,6 +5398,7 @@ MonoBehaviour:
   maskObjectGeneratedOutline: {fileID: 169128844}
   maskGenerator: {fileID: 112808158}
   maskLinePainter: {fileID: 125183333}
+  maskData: {fileID: 11400000, guid: b1f0ec1680a731947b26736b195a620c, type: 2}
 --- !u!1 &1766056477
 GameObject:
   m_ObjectHideFlags: 0
@@ -5793,9 +5795,9 @@ RectTransform:
   - {fileID: 1389887720}
   m_Father: {fileID: 253716062}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 455.97, y: -128}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 256, y: 256}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1918400842
