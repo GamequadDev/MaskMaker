@@ -18,13 +18,13 @@ MonoBehaviour:
   flowersNeedToUse: 0
   leavesNeedToUse: 0
   starsNeedToUse: 0
-  diamondsUsed: 8
-  feathersUsed: 5
-  flowersUsed: 5
-  leavesUsed: 15
-  starsUsed: 8
+  diamondsUsed: 37
+  feathersUsed: 15
+  flowersUsed: 20
+  leavesUsed: 30
+  starsUsed: 15
   starsWorthCount: 5
   burntPercent: 0
-  accuracyPercent: 6
+  accuracyPercent: 0
   typeCostumer: 
-  typeCurrent: Mask_5
+  typeCurrent: Mask_3

@@ -110,16 +110,16 @@ public class PutDecorate : MonoBehaviour, IPointerDownHandler
             return;
 
         Color pixel = maskTex.GetPixelBilinear(normalizedX, normalizedY);
-        float brightness = (pixel.r + pixel.g + pixel.b) / 3f;
-        if (pixel.a < maskThreshold) brightness = 0; 
         
-        if (brightness > maskThreshold)
+        // Zmieniono logikę: Sprawdzamy tylko Alfę (przezroczystość).
+        // Dzięki temu można stawiać dekoracje na czarnym tle, o ile nie jest przezroczyste.
+        if (pixel.a > maskThreshold)
         {
             SpawnDecoration(localPosition);
         }
         else
         {
-            Debug.Log("Poza maską (za ciemno)!");
+            Debug.Log("Poza maską (przezroczysto)!");
         }
     }
 
