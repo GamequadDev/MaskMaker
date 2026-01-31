@@ -11,12 +11,15 @@ public class MaskLinePainter : MonoBehaviour, IPointerDownHandler, IDragHandler
     public int brushSize = 10;
     
     [Header("Maska")]
-    [Tooltip("Texture2D definiująca obszar malowania - białe/nieprzezroczyste piksele = można malować")]
+    [Tooltip("Texture2D definiująca obszar malowania")]
     public Texture2D maskTexture;
     
-    [Tooltip("Próg przezroczystości maski (0-1). Powyżej tego progu można malować.")]
+    [Tooltip("Czy używać kanału alfa czy jasności do określenia obszaru malowania")]
+    public bool useAlphaChannel = false; // false = używaj jasności (lepsze dla czarnych masek)
+    
+    [Tooltip("Próg alfa/jasności (0-1). Powyżej tego progu można malować.")]
     [Range(0f, 1f)]
-    public float maskAlphaThreshold = 0.5f;
+    public float maskThreshold = 0.1f;
     
     [Header("Wizualizacja Obwódki")]
     [Tooltip("Opcjonalny Image UI do pokazania czarnej obwódki maski")]
@@ -44,6 +47,17 @@ public class MaskLinePainter : MonoBehaviour, IPointerDownHandler, IDragHandler
         drawableTexture.Apply();
 
         canvasImage.texture = drawableTexture;
+        
+        // Pobierz maskę z SelectMaskManager jeśli nie jest ręcznie przypisana
+        if (maskTexture == null && SelectMaskManager.instance != null)
+        {
+            maskTexture = SelectMaskManager.instance.GetSelectedMaskTexture();
+            if (maskTexture != null)
+            {
+                string mode = useAlphaChannel ? "ALFA" : "JASNOSC";
+                Debug.Log($"MaskLinePainter: Pobrano maske '{maskTexture.name}' | Tryb: {mode} | Threshold: {maskThreshold}");
+            }
+        }
         
         if (maskTexture != null)
         {
@@ -130,12 +144,24 @@ public class MaskLinePainter : MonoBehaviour, IPointerDownHandler, IDragHandler
     
     bool IsInsideMask(int x, int y)
     {
-        
         if (processedMask == null)
             return true;
         
         Color maskPixel = processedMask.GetPixel(x, y);
-        return maskPixel.a > maskAlphaThreshold;
+        
+        if (useAlphaChannel)
+        {
+            // Tryb alfa - sprawdza przezroczystość
+            return maskPixel.a > maskThreshold;
+        }
+        else
+        {
+            // Tryb jasności - POPRAWNA LOGIKA:
+            // JASNY/BIAŁY piksel = MOŻNA malować (obszar maski)
+            // CIEMNY/CZARNY piksel = NIE MOŻNA malować (poza maską)
+            float brightness = (maskPixel.r + maskPixel.g + maskPixel.b) / 3f;
+            return brightness > maskThreshold; // jasne piksele = maluj
+        }
     }
 
     /// <summary>
