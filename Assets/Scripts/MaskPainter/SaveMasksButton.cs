@@ -16,6 +16,10 @@ public class SaveMasksButton : MonoBehaviour
     [Header("Opcjonalne")]
     [Tooltip("Przycisk - zostanie automatycznie pobrany jeśli null")]
     public Button saveButton;
+
+    [Header("Panele")]
+    public GameObject infoPanel;
+    public GameObject paintingPanel;
     
     void Start()
     {
@@ -67,6 +71,8 @@ public class SaveMasksButton : MonoBehaviour
         if (success)
         {
             Debug.Log("✓ Obie maski zapisane pomyślnie jako PNG w Assets/GeneratedMasks/!");
+            paintingPanel.SetActive(false);
+            infoPanel.SetActive(true);
         }
     }
 }

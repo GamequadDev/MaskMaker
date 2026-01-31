@@ -67,11 +67,21 @@ public class MaskSimilarityChecker : MonoBehaviour
                     if (maskPixel.a < 0.5f) continue;
                 }
                 
-                totalPixels++;
-                
                 // Porównaj kolory
                 Color targetColor = targetTexture.GetPixel(x, y);
                 Color paintedColor = paintedTexture.GetPixel(x, y);
+                
+                // Pomiń piksele które są przezroczyste w obu maskach
+                // (nie chcemy liczyć obszarów gdzie nic nie namalowano)
+                bool targetTransparent = targetColor.a < 0.1f;
+                bool paintedTransparent = paintedColor.a < 0.1f;
+                
+                if (targetTransparent && paintedTransparent)
+                {
+                    continue; // Oba przezroczyste - pomiń
+                }
+                
+                totalPixels++;
                 
                 // Debug - pokaż pierwsze kilka przykładów
                 if (showDebug && debugSamples < 5 && (x % 50 == 0 && y % 50 == 0))
