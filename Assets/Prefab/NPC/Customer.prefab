@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5960391267555026075}
+  - component: {fileID: 2845502852320815419}
   m_Layer: 0
   m_Name: Customer
   m_TagString: Untagged
@@ -32,6 +33,21 @@ Transform:
   - {fileID: 325771631054683932}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2845502852320815419
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2930340954914502223}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 953f7f38529c60ad8abbf6f381d86a8e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  waitTime: 10
+  customerManager: {fileID: 0}
+  customerMovement: {fileID: 0}
 --- !u!1 &5921878618679772633
 GameObject:
   m_ObjectHideFlags: 0

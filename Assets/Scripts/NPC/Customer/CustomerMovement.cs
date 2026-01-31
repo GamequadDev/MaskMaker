@@ -19,10 +19,13 @@ public class CustomerMovement : MonoBehaviour
         }
     }
 
-    public void ExitShop()
+    public void ExitShop(Transform endPoint)
     {
-        // Tutaj np. punkt wyjścia ze sklepu
+        if (endPoint != null)
+        {
+            MoveTo(endPoint.position);
+        }
         Debug.Log("Klient obsłużony, wychodzi...");
-        Destroy(gameObject, 2f); 
+        Destroy(gameObject, 10f); 
     }
 }
