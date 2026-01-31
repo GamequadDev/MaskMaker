@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEditor;
 
 /// <summary>
 /// Przycisk do sprawdzenia dokładności maski i wyświetlenia wyniku
@@ -20,6 +21,9 @@ public class CheckAccuracyButton : MonoBehaviour
     [Header("Opcjonalne")]
     [Tooltip("Przycisk - zostanie automatycznie pobrany jeśli null")]
     public Button checkButton;
+
+    [Header("Zapis do danych maski")]
+    public MaskData maskData;
     
     void Start()
     {
@@ -54,6 +58,8 @@ public class CheckAccuracyButton : MonoBehaviour
         
         // Sprawdź podobieństwo
         float accuracy = similarityChecker.CheckSimilarity();
+        maskData.accuracyPercent = (int)accuracy;
+        EditorUtility.SetDirty(maskData);
         
         // Wyświetl wynik
         string message = $"ACCURACY SCORE OF YOUR MASK: {accuracy:F1}%";
