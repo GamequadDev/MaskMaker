@@ -530,8 +530,7 @@ MonoBehaviour:
   indicator: {fileID: 2069560977}
   bar: {fileID: 1523274945}
   target: {fileID: 1812952405}
-  speed: 300
-  barWidth: 800
+
 --- !u!4 &1718054896
 Transform:
   m_ObjectHideFlags: 0
