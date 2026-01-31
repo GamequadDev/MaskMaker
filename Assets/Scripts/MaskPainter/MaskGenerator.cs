@@ -10,20 +10,23 @@ public class MaskGenerator : MonoBehaviour
     [Tooltip("Maska definiująca obszar do kolorowania")]
     public Texture2D maskTexture;
     
-    [Tooltip("Próg przezroczystości maski (0-1). Powyżej tego progu będzie kolorowane.")]
+    [Tooltip("Czy używać kanału alfa czy jasności do określenia obszaru")]
+    public bool useAlphaChannel = false; // false = używaj jasności (lepsze dla czarnych masek)
+    
+    [Tooltip("Próg alfa/jasności (0-1). Powyżej tego progu będzie kolorowane.")]
     [Range(0f, 1f)]
-    public float maskAlphaThreshold = 0.5f;
+    public float maskThreshold = 0.1f;
     
     [Header("Kolory do Losowania")]
     [Tooltip("Lista kolorów z których będzie losowane - odpowiada kolorom z ColorSelectorManager")]
     public Color[] availableColors = new Color[]
     {
-        Color.red,      // SetRed()
-        Color.blue,     // SetBlue()
-        Color.green,    // SetGreen()
-        Color.black,    // setBlack()
-        Color.magenta,  // setPurple()
-        Color.white     // setWhite()
+        Color.red,      
+        Color.blue,     
+        new Color32(28, 186, 42, 255),  // SetGreen()
+        Color.black,    
+        new Color32(255, 227, 0, 255),  // setYellow()
+        new Color32(229, 181, 79, 255)  // setBeige()
     };
     
     [Header("Parametry Generacji")]
@@ -31,12 +34,14 @@ public class MaskGenerator : MonoBehaviour
     [Range(5, 50)]
     public int regionSize = 20;
     
+    [Header("Generator")]
+    [Tooltip("Referencja do MasksHolder z listami gotowych masek")]
+    public MasksHolder masksHolder;
+    
     [Tooltip("Opcjonalny RawImage do wyświetlenia wygenerowanej maski")]
     public RawImage previewImage;
     
-    [Header("Auto-generacja")]
-    [Tooltip("Czy generować maskę automatycznie przy starcie sceny?")]
-    public bool generateOnStart = true;
+
     
     [Header("Wynik")]
     [Tooltip("Wygenerowana tekstura - można ją później porównać z namalowaną")]
@@ -45,22 +50,35 @@ public class MaskGenerator : MonoBehaviour
     private int textureWidth = 512;
     private int textureHeight = 512;
     
-    void Start()
-    {
-        if (generateOnStart)
-        {
-            GenerateRandomMask();
-        }
-    }
+
     
     /// <summary>
     /// Generuje losowo pokolorowaną maskę
     /// </summary>
+    /// <summary>
+    /// Generuje losowo pokolorowaną maskę na podstawie podanej tekstury
+    /// </summary>
+    public void GenerateRandomMask(Texture2D newMaskTexture)
+    {
+        if (newMaskTexture != null)
+        {
+            maskTexture = newMaskTexture;
+            string mode = useAlphaChannel ? "ALFA" : "JASNOSC";
+            Debug.Log($"MaskGenerator: Otrzymano nową maskę '{maskTexture.name}' | Tryb: {mode}");
+        }
+        
+        GenerateRandomMask();
+    }
+    
+    /// <summary>
+    /// Generuje losowo pokolorowaną maskę używając aktualnie przypisanej maskTexture
+    /// </summary>
     public void GenerateRandomMask()
     {
+        
         if (maskTexture == null)
         {
-            Debug.LogError("Brak maskTexture! Przypisz teksturę maski w inspektorze.");
+            Debug.LogError("Brak maskTexture! Wybierz maskę lub przypisz teksturę maski w inspektorze.");
             return;
         }
         
@@ -69,6 +87,14 @@ public class MaskGenerator : MonoBehaviour
             Debug.LogError("Brak dostępnych kolorów!");
             return;
         }
+
+        // 1. Sprawdź czy mamy gotową maskę w MasksHolder
+        if (TryUsePredefinedMask())
+        {
+            return; // Użyto gotowej maski, kończymy
+        }
+
+        // 2. Jeśli nie, generuj proceduralnie
         
         // Utwórz nową teksturę
         generatedTexture = new Texture2D(textureWidth, textureHeight);
@@ -93,6 +119,50 @@ public class MaskGenerator : MonoBehaviour
         }
         
         Debug.Log($"Wygenerowano losową maskę rozmiaru {textureWidth}x{textureHeight}");
+    }
+    
+    /// <summary>
+    /// Próbuje pobrać gotową maskę z MasksHolder na podstawie nazwy wybranej maski
+    /// </summary>
+    private bool TryUsePredefinedMask()
+    {
+        if (masksHolder == null) return false;
+
+        string maskName = maskTexture.name;
+        Texture2D predefinedTexture = null;
+        System.Collections.Generic.List<Texture2D> targetList = null;
+
+        // Dopasuj listę na podstawie nazwy (zakładamy "Mask_1", "Mask_2" itd.)
+        if (maskName.Contains("Mask_1")) targetList = masksHolder.masksFirst;
+        else if (maskName.Contains("Mask_2")) targetList = masksHolder.masksSecond;
+        else if (maskName.Contains("Mask_3")) targetList = masksHolder.masksThird;
+        else if (maskName.Contains("Mask_4")) targetList = masksHolder.masksFourth;
+        else if (maskName.Contains("Mask_5")) targetList = masksHolder.masksFifth;
+
+        // Jeśli znaleziono listę i ma ona element
+        if (targetList != null && targetList.Count > 0)
+        {
+            predefinedTexture = targetList[0];
+            targetList.RemoveAt(0); // Usuń wykorzystaną
+            
+            Debug.Log($"MaskGenerator: Używam gotowej maski dla {maskName} (zostało {targetList.Count})");
+        }
+
+        if (predefinedTexture != null)
+        {
+            // Przypisz gotową teksturę jako wynik
+            generatedTexture = predefinedTexture; 
+            
+            // Pokaż podgląd
+            if (previewImage != null)
+            {
+                previewImage.texture = generatedTexture;
+            }
+            
+            return true;
+        }
+
+        return false;
     }
     
     /// <summary>
@@ -227,7 +297,20 @@ public class MaskGenerator : MonoBehaviour
         float v = (float)y / textureHeight;
         
         Color maskPixel = maskTexture.GetPixelBilinear(u, v);
-        return maskPixel.a > maskAlphaThreshold;
+        
+        if (useAlphaChannel)
+        {
+            // Tryb alfa - sprawdza przezroczystość
+            return maskPixel.a > maskThreshold;
+        }
+        else
+        {
+            // Tryb jasności - POPRAWNA LOGIKA:
+            // JASNY/BIAŁY piksel = MOŻNA generować (obszar maski)
+            // CIEMNY/CZARNY piksel = NIE MOŻNA generować (poza maską)
+            float brightness = (maskPixel.r + maskPixel.g + maskPixel.b) / 3f;
+            return brightness > maskThreshold; // jasne piksele = generuj
+        }
     }
     
     /// <summary>
@@ -315,7 +398,7 @@ public class MaskGenerator : MonoBehaviour
     /// Generuje maskę przy starcie gry (opcjonalne)
     /// </summary>
     [ContextMenu("Generate Random Mask")]
-    public void GenerateOnStart()
+    public void GenerateManual()
     {
         GenerateRandomMask();
     }

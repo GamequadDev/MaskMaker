@@ -11,12 +11,15 @@ public class MaskLinePainter : MonoBehaviour, IPointerDownHandler, IDragHandler
     public int brushSize = 10;
     
     [Header("Maska")]
-    [Tooltip("Texture2D definiująca obszar malowania - białe/nieprzezroczyste piksele = można malować")]
+    [Tooltip("Texture2D definiująca obszar malowania")]
     public Texture2D maskTexture;
     
-    [Tooltip("Próg przezroczystości maski (0-1). Powyżej tego progu można malować.")]
+    [Tooltip("Czy używać kanału alfa czy jasności do określenia obszaru malowania")]
+    public bool useAlphaChannel = false; // false = używaj jasności (lepsze dla czarnych masek)
+    
+    [Tooltip("Próg alfa/jasności (0-1). Powyżej tego progu można malować.")]
     [Range(0f, 1f)]
-    public float maskAlphaThreshold = 0.5f;
+    public float maskThreshold = 0.1f;
     
     [Header("Wizualizacja Obwódki")]
     [Tooltip("Opcjonalny Image UI do pokazania czarnej obwódki maski")]
@@ -45,23 +48,44 @@ public class MaskLinePainter : MonoBehaviour, IPointerDownHandler, IDragHandler
 
         canvasImage.texture = drawableTexture;
         
+        // Jeśli maska jest już przypisana w inspektorze, użyj jej
         if (maskTexture != null)
         {
-            PrepareMask(width, height);
-            
-            // Ustaw obwódkę jeśli jest przypisana
-            if (outlineImage != null)
-            {
-                outlineImage.sprite = Sprite.Create(
-                    maskTexture,
-                    new Rect(0, 0, maskTexture.width, maskTexture.height),
-                    new Vector2(0.5f, 0.5f)
-                );
-            }
+            Initialize(maskTexture);
         }
-        else
+    }
+
+    /// <summary>
+    /// Inicjalizuje malowanie na podstawie podanej maski
+    /// </summary>
+    public void Initialize(Texture2D newMask)
+    {
+        if (newMask == null) 
         {
-            Debug.LogWarning("Brak maskTexture! Przypisz teksturę maski w inspektorze.");
+            Debug.LogWarning("MaskLinePainter: Próba inicjalizacji null maską!");
+            return;
+        }
+
+        maskTexture = newMask;
+        string mode = useAlphaChannel ? "ALFA" : "JASNOSC";
+        Debug.Log($"MaskLinePainter: Inicjalizacja maska '{maskTexture.name}' | Tryb: {mode}");
+
+        if (rectTransform == null) rectTransform = GetComponent<RectTransform>();
+        if (canvasImage == null) canvasImage = GetComponent<RawImage>();
+
+        int width = (int)rectTransform.rect.width;
+        int height = (int)rectTransform.rect.height;
+        
+        PrepareMask(width, height);
+        
+        // Ustaw obwódkę jeśli jest przypisana
+        if (outlineImage != null)
+        {
+            outlineImage.sprite = Sprite.Create(
+                maskTexture,
+                new Rect(0, 0, maskTexture.width, maskTexture.height),
+                new Vector2(0.5f, 0.5f)
+            );
         }
     }
 
@@ -130,12 +154,24 @@ public class MaskLinePainter : MonoBehaviour, IPointerDownHandler, IDragHandler
     
     bool IsInsideMask(int x, int y)
     {
-        
         if (processedMask == null)
             return true;
         
         Color maskPixel = processedMask.GetPixel(x, y);
-        return maskPixel.a > maskAlphaThreshold;
+        
+        if (useAlphaChannel)
+        {
+            // Tryb alfa - sprawdza przezroczystość
+            return maskPixel.a > maskThreshold;
+        }
+        else
+        {
+            // Tryb jasności - POPRAWNA LOGIKA:
+            // JASNY/BIAŁY piksel = MOŻNA malować (obszar maski)
+            // CIEMNY/CZARNY piksel = NIE MOŻNA malować (poza maską)
+            float brightness = (maskPixel.r + maskPixel.g + maskPixel.b) / 3f;
+            return brightness > maskThreshold; // jasne piksele = maluj
+        }
     }
 
     /// <summary>
