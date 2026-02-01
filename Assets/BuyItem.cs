@@ -18,6 +18,8 @@ public class BuyItem : MonoBehaviour
     public TextMeshProUGUI priceText;
     public ShopPriceData shopPriceData;
     int cost;
+    public TextMeshProUGUI coinsText;
+    public TextMeshProUGUI amountText;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -50,7 +52,27 @@ public class BuyItem : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (coinsText != null)
+            coinsText.text = "Money: " + playerData.money.ToString() + " RUB";
+
+        switch(Item)
+        {
+            case ItemType.Diamond:
+                amountText.text = "x" + playerData.diamondsCount.ToString();
+                break;
+            case ItemType.Feather:
+                amountText.text = "x" + playerData.feathersCount.ToString();
+                break;
+            case ItemType.Star:
+                amountText.text = "x" + playerData.starsCount.ToString();
+                break;
+            case ItemType.Leaf:
+                amountText.text = "x" + playerData.leavesCount.ToString();
+                break;
+            case ItemType.Flower:
+                amountText.text = "x" + playerData.flowersCount.ToString();
+                break;
+        }
     }
 
     public void Buy()
