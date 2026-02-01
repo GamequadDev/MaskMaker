@@ -4,19 +4,24 @@ using UnityEngine;
 public class QueueManager : MonoBehaviour
 {
     public List<Transform> queuePoints;
+    public Transform exitPoint;
     private List<CustomerMovement> customers = new List<CustomerMovement>();
 
-    public void AddToQueue(CustomerMovement newCustomer)
+    public void AddToQueue(GameObject newCustomerObj)
     {
-        customers.Add(newCustomer);
-        RefreshQueue();
+        CustomerMovement newCustomer = newCustomerObj.GetComponentInChildren<CustomerMovement>();
+        if (newCustomer != null)
+        {
+            customers.Add(newCustomer);
+            RefreshQueue();
+        }
     }
 
     public void ServeFirst()
     {
         if (customers.Count > 0)
         {
-            customers[0].ExitShop(); 
+            customers[0].ExitShop(exitPoint); 
             customers.RemoveAt(0);
             
             RefreshQueue();
@@ -30,7 +35,18 @@ public class QueueManager : MonoBehaviour
             if (i < queuePoints.Count)
             {
                 customers[i].MoveTo(queuePoints[i].position);
+
+                Customer customerScript = customers[i].GetComponentInParent<Customer>();
+                if (customerScript != null)
+                {
+                    customerScript.queuePosition = i;
+                }
             }
         }
+    }
+
+    public int GetCurrentCustomerCount()
+    {
+    return customers.Count;
     }
 }

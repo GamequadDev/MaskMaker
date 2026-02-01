@@ -10,7 +10,7 @@ public class HandlerStoppedMovementPlayer : MonoBehaviour
         
         if (playerMovement == null)
         {
-            playerMovement = FindObjectOfType<PlayerMovement>();
+            playerMovement = FindFirstObjectByType<PlayerMovement>();
         }
     }
 
@@ -43,6 +43,11 @@ public class HandlerStoppedMovementPlayer : MonoBehaviour
             Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
         }
+    }
+
+    public void Close()
+    {
+        gameObject.SetActive(false);
     }
 
 }
