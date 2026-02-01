@@ -10,6 +10,7 @@ public class SlotMachine : MonoBehaviour
     public SlotReel[] reels;
     public Button spinButton;
     public TextMeshProUGUI resultText;
+    public PlayerData PlayerStats;
 
     [Header("Ustawienia Gry")]
     // Czas kręcenia pierwszego bębna (kolejne będą kręcić się dłużej)
@@ -23,7 +24,17 @@ public class SlotMachine : MonoBehaviour
         // Dodatkowe zabezpieczenie, żeby nie klikać w trakcie kręcenia
         if (spinButton.interactable)
         {
-            StartCoroutine(StartSpinningRoutine());
+            if (PlayerStats.money >= 100)
+            {
+                // Pobieramy koszt gry
+                StartCoroutine(StartSpinningRoutine());
+                PlayerStats.money = PlayerStats.money - 100;
+            }
+            else
+            {
+                resultText.text = "Not enough money!";
+                resultText.color = Color.red;
+            }
         }
     }
 
@@ -86,6 +97,7 @@ public class SlotMachine : MonoBehaviour
         {
             resultText.text = "MEGA BIG WIN!!!";
             resultText.color = Color.green;
+            PlayerStats.money += 5000;
             // Tutaj możesz dodać dźwięk wygranej lub efekt cząsteczkowy
         }
         else
