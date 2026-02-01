@@ -41,15 +41,11 @@ public class DecorateButton : MonoBehaviour
         
         LoadPaintedMask();
         
-        if (decoratePanel != null)
-        {
-             decoratePanel.SetActive(true);
-             Debug.Log("DecorateButton: Pokazano decoratePanel.");
-        }
-        else
-        {
-             Debug.LogError("DecorateButton: Brak referencji do Decorate Panel!");
-        }
+        ProgressManager.instance.canDecoratePanel = true;
+        ProgressManager.instance.canPaintPanel = false;
+        ProgressManager.instance.canBakePanel = false;
+        ProgressManager.instance.canChoosePanel = false;
+        BlockUI.instance.HideCursorAndUnpauseGame();
     }
 
     private void LoadPaintedMask()
