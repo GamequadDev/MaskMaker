@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class CanvasExitIcon : MonoBehaviour
 {
-    public Canvas canvasToClose;
+    public GameObject canvasToClose;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -20,7 +20,7 @@ public class CanvasExitIcon : MonoBehaviour
     {
         if (canvasToClose != null)
         {
-            canvasToClose.enabled = false;
+            canvasToClose.SetActive(false);
             Debug.Log("CanvasExitIcon: Closed canvas " + canvasToClose.name);
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
