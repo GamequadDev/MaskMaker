@@ -12,6 +12,8 @@ public class FurnaceEvent : MonoBehaviour
     public RectTransform target;
     public TextMeshProUGUI attemptOneText;
     public TextMeshProUGUI attemptTwoText;
+    public UnityEngine.UI.Button exitButton; // Przycisk wyjścia - włącza się po 2 próbach
+    public GameObject panelToClose; // Panel który zostanie zamknięty
 
     [Header("Settings")]
     bool movingRight = true;
@@ -22,11 +24,11 @@ public class FurnaceEvent : MonoBehaviour
 
     private int currentAttempt = 0;
     private bool isAttemptActive = false;
+    private bool bothAttemptsCompleted = false;
 
     private float minX;
     private float maxX;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         CalculateBounds();   
@@ -34,7 +36,14 @@ public class FurnaceEvent : MonoBehaviour
 
     void OnEnable()
     {
-        // Automatycznie wystartuj minigame gdy panel się włączy
+        // Wyłącz przycisk wyjścia na początku
+        if (exitButton != null)
+        {
+            exitButton.interactable = false;
+            Debug.Log("Exit button disabled - waiting for 2 attempts");
+        }
+        
+        bothAttemptsCompleted = false;
         StartMinigame();
     }
 
@@ -114,10 +123,12 @@ public class FurnaceEvent : MonoBehaviour
 
     void HandleAttempt()
     {
+        Debug.Log($"HandleAttempt called - currentAttempt: {currentAttempt}");
         bool success = CheckSuccess();
 
         if (currentAttempt == 1)
         {
+            Debug.Log("Processing FIRST attempt");
             if (success)
             {
                 attemptOneText.text = "Success";
@@ -130,10 +141,12 @@ public class FurnaceEvent : MonoBehaviour
 
             isAttemptActive = false;
             // Automatycznie rozpocznij drugą próbę po zakończeniu pierwszej
+            Debug.Log("Starting second attempt...");
             startSecondAttempt();
         }
         else if (currentAttempt == 2)
         {
+            Debug.Log("Processing SECOND attempt");
             if (success)
             {
                 attemptTwoText.text = "Success";
@@ -145,8 +158,18 @@ public class FurnaceEvent : MonoBehaviour
             }
 
             isAttemptActive = false;
-            // Po drugiej próbie kończymy minigame - czekamy 2 sekundy i zamykamy panel
-            StartCoroutine(ExitMinigame());
+            bothAttemptsCompleted = true;
+            
+            // Włącz przycisk wyjścia po zakończeniu obu prób
+            if (exitButton != null)
+            {
+                exitButton.interactable = true;
+                Debug.Log("Exit button ENABLED - player can now close the panel");
+            }
+            else
+            {
+                Debug.LogError("Exit button is NULL! Assign it in Inspector!");
+            }
         }
     }
 
@@ -173,12 +196,48 @@ public class FurnaceEvent : MonoBehaviour
         }
     }
 
-    public IEnumerator ExitMinigame()
+    /// <summary>
+    /// Wywołane przez exitButton po zakończeniu obu prób
+    /// Zamyka panel i ustawia maskę jako ukończoną
+    /// </summary>
+    public void OnExitButtonClicked()
     {
-        //WAIT 2 SECONDS
-        yield return new WaitForSeconds(2f);
-        gameObject.SetActive(false);
-        BlockUI.instance.HideCursorAndUnpauseGame();
+        Debug.Log("=== EXIT BUTTON CLICKED ===");
+        
+        // Ustaw flagę że maska jest gotowa do sprzedaży
+        if (ProgressManager.instance != null)
+        {
+            ProgressManager.instance.isMaskFinished = true;
+            Debug.Log("✓ isMaskFinished set to TRUE");
+        }
+        else
+        {
+            Debug.LogError("✗ ProgressManager.instance is NULL!");
+        }
+        
+        // Zamknij panel
+        if (panelToClose != null)
+        {
+            Debug.Log($"✓ Closing panel: {panelToClose.name}");
+            panelToClose.SetActive(false);
+        }
+        else
+        {
+            Debug.LogError("✗ panelToClose is NULL! Assign it in Inspector!");
+        }
+        
+        // Odblokuj grę i ukryj kursor
+        if (BlockUI.instance != null)
+        {
+            BlockUI.instance.HideCursorAndUnpauseGame();
+            Debug.Log("✓ Game unpaused, cursor hidden");
+        }
+        else
+        {
+            Debug.LogError("✗ BlockUI.instance is NULL!");
+        }
+        
+        Debug.Log("=== BAKING COMPLETE ===");
     }
 
 }

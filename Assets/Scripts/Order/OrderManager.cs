@@ -43,17 +43,8 @@ public class OrderManager : MonoBehaviour
         instance = this;
     }
 
-
-    public void Update()
-    {
-        if(Input.GetKeyDown(KeyCode.P))
-        {
-            GenerateNewOrder();
-            OpenOfferPanel();
-        }
-    }
-
-
+    // Reference to the current customer who made the order
+    private Customer currentCustomer;
 
     public int CalculateOfferBasedOnNeeds(int baseMin, int baseMax)
     {
@@ -111,12 +102,25 @@ public class OrderManager : MonoBehaviour
         maskData.negotiatedMoney = offerMoney;
         maskData.typeCostumer = offerMasktype;
         offerPanel.SetActive(false);
+        
+        // Powiadom NPC że zamówienie zostało zaakceptowane
+        if (currentCustomer != null)
+        {
+            currentCustomer.OnOrderAccepted();
+        }
     }
 
     public void RejectOffer()
     {
         BlockUI.instance.HideCursorAndUnpauseGame();
         offerPanel.SetActive(false);
+        
+        // Powiadom NPC że zamówienie zostało odrzucone
+        if (currentCustomer != null)
+        {
+            currentCustomer.OnOrderRejected();
+            currentCustomer = null;
+        }
     }
 
     public void GenerateNewOrder()
@@ -131,8 +135,9 @@ public class OrderManager : MonoBehaviour
     }
 
 
-    public void OpenOfferPanel()
+    public void OpenOfferPanel(Customer customer)
     {
+        currentCustomer = customer;
         BlockUI.instance.ShowCursorAndPauseGame();
         offerPanel.SetActive(true);
         GenerateNewOrder();
@@ -155,6 +160,16 @@ public class OrderManager : MonoBehaviour
         else
         {
             Debug.LogWarning($"Mask sprite not found for: {name}");
+        }
+    }
+
+    // Wywołane przez SellMask po sprzedaży maski
+    public void NotifyCustomerMaskSold()
+    {
+        if (currentCustomer != null)
+        {
+            currentCustomer.OnMaskSold();
+            currentCustomer = null;
         }
     }
 

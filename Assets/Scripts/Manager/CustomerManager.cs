@@ -37,17 +37,29 @@ public class CustomerManager : MonoBehaviour
     }
     void SpawnNewCustomer()
     {
+        Debug.Log("SpawnNewCustomer called!");
         GameObject newCustomerObj = Instantiate(customerPrefab, spawnPoint.position, spawnPoint.rotation);
         
         if (newCustomerObj != null)
         {
+            Debug.Log($"Customer instantiated: {newCustomerObj.name}");
+            
             Customer customerScript = newCustomerObj.GetComponent<Customer>();
             if (customerScript != null)
             {
                 customerScript.customerManager = this;
+                Debug.Log("Customer script found and assigned");
+            }
+            else
+            {
+                Debug.LogError("Customer script NOT FOUND!");
             }
 
             queueManager.AddToQueue(newCustomerObj);
+        }
+        else
+        {
+            Debug.LogError("Failed to instantiate customer!");
         }
     }
 }

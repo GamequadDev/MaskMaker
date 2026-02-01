@@ -9,11 +9,20 @@ public class QueueManager : MonoBehaviour
 
     public void AddToQueue(GameObject newCustomerObj)
     {
+        Debug.Log($"AddToQueue called with: {newCustomerObj.name}");
+        
         CustomerMovement newCustomer = newCustomerObj.GetComponentInChildren<CustomerMovement>();
+        
         if (newCustomer != null)
         {
+            Debug.Log($"CustomerMovement found! Adding to queue. Current count: {customers.Count}");
             customers.Add(newCustomer);
             RefreshQueue();
+            Debug.Log($"After adding - Queue count: {customers.Count}");
+        }
+        else
+        {
+            Debug.LogError($"CustomerMovement NOT FOUND on {newCustomerObj.name}!");
         }
     }
 
@@ -48,5 +57,20 @@ public class QueueManager : MonoBehaviour
     public int GetCurrentCustomerCount()
     {
     return customers.Count;
+    }
+
+    public Customer GetFirstCustomer()
+    {
+        Debug.Log($"GetFirstCustomer called. Customers count: {customers.Count}");
+        
+        if (customers.Count > 0 && customers[0] != null)
+        {
+            Customer customer = customers[0].GetComponentInParent<Customer>();
+            Debug.Log($"First customer found: {customer != null}");
+            return customer;
+        }
+        
+        Debug.Log("No customers in queue");
+        return null;
     }
 }
