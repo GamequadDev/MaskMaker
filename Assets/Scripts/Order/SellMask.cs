@@ -21,6 +21,8 @@ public class SellMask : MonoBehaviour
             return;
         }
         
+        textPrice.text = maskData.finalMoney.ToString();
+        
         Debug.Log($"Setting sellPanel active. Current state: {sellPanel.activeSelf}");
         sellPanel.SetActive(true);
         Debug.Log("SellPanel set to active");

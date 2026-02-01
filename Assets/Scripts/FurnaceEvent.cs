@@ -164,6 +164,8 @@ public class FurnaceEvent : MonoBehaviour
             if (exitButton != null)
             {
                 exitButton.interactable = true;
+                Cursor.visible = true;
+                Cursor.lockState = CursorLockMode.None;
                 Debug.Log("Exit button ENABLED - player can now close the panel");
             }
             else

@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8de47bc94c1cdb947877ef0ff10b06ad, type: 3}
   m_Name: CurrentMask
   m_EditorClassIdentifier: 
-  negotiatedMoney: 421
-  diamondsNeedToUse: 4
-  feathersNeedToUse: 3
+  negotiatedMoney: 292
+  diamondsNeedToUse: 1
+  feathersNeedToUse: 2
   flowersNeedToUse: 2
   leavesNeedToUse: 4
-  starsNeedToUse: 1
+  starsNeedToUse: 4
   diamondsUsed: 27
   feathersUsed: 37
   flowersUsed: 20
@@ -25,6 +25,6 @@ MonoBehaviour:
   starsUsed: 9
   starsWorthCount: 0
   burntPercent: 930
-  accuracyPercent: 5
+  accuracyPercent: 0
   typeCostumer: Mask_2
   typeCurrent: Mask_1
