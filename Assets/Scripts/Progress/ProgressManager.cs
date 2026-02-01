@@ -47,6 +47,8 @@ public class ProgressManager : MonoBehaviour
     public bool canDecoratePanel = false;
     public bool canBakePanel = false;
 
+    public bool isMaskFinished = false;
+
 
     private void Awake()
     {
@@ -75,6 +77,7 @@ public class ProgressManager : MonoBehaviour
         canPaintMask = false;
         canDecorateMask = false;
         canBakeMask = false;
+        isMaskFinished = false;
     }
 
 
