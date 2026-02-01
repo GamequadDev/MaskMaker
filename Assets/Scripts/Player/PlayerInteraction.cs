@@ -4,6 +4,7 @@ public class PlayerInteraction : MonoBehaviour
 {
     [Header("References")]
     public QueueManager queueManager;
+    public SellMask sellMask; // Przypisz w Inspectorze!
     
     [Header("Player Area Detection")]
     public bool isInPlayerArea = false;
@@ -33,7 +34,8 @@ public class PlayerInteraction : MonoBehaviour
         // Obsługa klawisza E
         if (Input.GetKeyDown(KeyCode.E))
         {
-            Debug.Log($"E pressed! isInPlayerArea: {isInPlayerArea}, customer exists: {currentFirstCustomer != null}");
+            bool maskFinished = ProgressManager.instance != null && ProgressManager.instance.isMaskFinished;
+            Debug.Log($"=== E PRESSED === isInPlayerArea: {isInPlayerArea}, isMaskFinished: {maskFinished}, customer: {currentFirstCustomer != null}");
             
             if (isInPlayerArea)
             {
@@ -41,7 +43,7 @@ public class PlayerInteraction : MonoBehaviour
             }
             else
             {
-                Debug.Log("E pressed but not in player area!");
+                Debug.Log("E pressed but NOT in player area!");
             }
         }
     }
@@ -53,15 +55,13 @@ public class PlayerInteraction : MonoBehaviour
         {
             Debug.Log("Mask is finished! Opening sell panel...");
             
-            // Znajdź SellMask i otwórz panel
-            SellMask sellMask = FindObjectOfType<SellMask>();
             if (sellMask != null)
             {
                 sellMask.OpenSellPanel();
             }
             else
             {
-                Debug.LogError("SellMask not found in scene!");
+                Debug.LogError("SellMask is NOT assigned in PlayerInteraction Inspector!");
             }
             return;
         }
