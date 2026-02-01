@@ -1,7 +1,7 @@
 using UnityEditor;
 
 public class BuildScript {
-    static string[] Scenes = { "Assets/Scenes/Store/MainStore1.unity" };
+    static string[] Scenes = { "Assets/Scenes/Store/MainStore 1.unity" };
 
     public static void BuildWebGL() {
         BuildPipeline.BuildPlayer(Scenes, "Builds/WebGL", BuildTarget.WebGL, BuildOptions.None);
