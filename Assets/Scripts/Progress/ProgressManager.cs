@@ -93,7 +93,7 @@ public class ProgressManager : MonoBehaviour
 
     public void UpdateUI()
     {
-        textOfferedMoney.text = maskData.negotiatedMoney.ToString();
+        textOfferedMoney.text = maskData.negotiatedMoney.ToString() + " RUB";
         textNeedDiamonds.text = maskData.diamondsNeedToUse.ToString();
         textNeedFeathers.text = maskData.feathersNeedToUse.ToString();
         textNeedLeaves.text = maskData.leavesNeedToUse.ToString();
@@ -101,7 +101,7 @@ public class ProgressManager : MonoBehaviour
         textNeedStars.text = maskData.starsNeedToUse.ToString();
         GetMaskByName(maskData.typeCostumer);
 
-        textMoney.text = playerData.money.ToString();
+        textMoney.text = playerData.money.ToString() + " RUB";
         textDiamonds.text = playerData.diamondsCount.ToString();
         textFeathers.text = playerData.feathersCount.ToString();
         textLeaves.text = playerData.leavesCount.ToString();
