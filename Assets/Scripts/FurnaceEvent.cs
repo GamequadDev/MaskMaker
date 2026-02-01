@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections;
 
 public class FurnaceEvent : MonoBehaviour
 {
@@ -144,7 +145,8 @@ public class FurnaceEvent : MonoBehaviour
             }
 
             isAttemptActive = false;
-            // Po drugiej próbie kończymy minigame
+            // Po drugiej próbie kończymy minigame - czekamy 2 sekundy i zamykamy panel
+            StartCoroutine(ExitMinigame());
         }
     }
 
@@ -169,6 +171,14 @@ public class FurnaceEvent : MonoBehaviour
             Debug.Log("Failure!");
             return false;
         }
+    }
+
+    public IEnumerator ExitMinigame()
+    {
+        //WAIT 2 SECONDS
+        yield return new WaitForSeconds(2f);
+        gameObject.SetActive(false);
+        BlockUI.instance.HideCursorAndUnpauseGame();
     }
 
 }
