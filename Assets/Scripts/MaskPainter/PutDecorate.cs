@@ -2,20 +2,26 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
+using System.IO;
 
 public class PutDecorate : MonoBehaviour, IPointerDownHandler
 {
     [System.Serializable]
     public class DecorationItem
     {
-        public string name;      // Np. "Diament", "Pioro", "Kwiat"
+        public string name;      
         public GameObject prefab;
-        public int maxCount;     // Limit (np. 5)
-        [HideInInspector] public int currentCount; // Ile już postawiono
+        [HideInInspector] public int currentCount; 
     }
 
+    [Header("Maska - Dane")]
+    public MaskData maskData;
+
+    [Header("Gracz - Dane")]
+    public PlayerData playerData;
+
     [Header("Maska - obszar")]
-    public RawImage maskDisplay;     // Komponent wyświetlający maskę (z niego weźmiemy teksturę)
+    public RawImage maskDisplay;     // Komponent wyświetlający maskę
     public float maskThreshold = 0.1f;
     
     [Header("Kontener")]
@@ -33,20 +39,48 @@ public class PutDecorate : MonoBehaviour, IPointerDownHandler
         rectTransform = GetComponent<RectTransform>();
     }
 
-    // Funkcja do wywoływania z przycisków UI (np. Button Diament -> OnClick -> SelectDecoration(0))
+    // Funkcja do wywoływania z przycisków UI
     public void SelectDecoration(int index)
     {
         if (index >= 0 && index < decorations.Count)
         {
             selectedDecorationIndex = index;
-            Debug.Log($"Wybrano dekorację: {decorations[index].name} (Dostępne: {decorations[index].maxCount - decorations[index].currentCount})");
+            string decoName = decorations[index].name;
+            int limit = GetMaxCount(decoName);
+            int current = decorations[index].currentCount;
+            
+            Debug.Log($"Wybrano dekorację: {decoName} (Dostępne: {limit - current}/{limit})");
+        }
+    }
+
+    // Helper pobierający limit z PlayerData na podstawie nazwy
+    private int GetMaxCount(string decorationName)
+    {
+        if (playerData == null) return 99; // Fallback jeśli brak PlayerData
+
+        switch (decorationName)
+        {
+            case "Diament": // Obsługa polskich nazw jeśli takie są w liście
+            case "Diamond": return playerData.diamondsCount;
+            
+            case "Pioro":
+            case "Feather": return playerData.feathersCount;
+            
+            case "Kwiat":
+            case "Flower": return playerData.flowersCount;
+            
+            case "Lisc":
+            case "Leaf": return playerData.leavesCount;
+            
+            case "Gwiazdka":
+            case "Star": return playerData.starsCount;
+            
+            default: return 0;
         }
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        Debug.Log("PutDecorate: OnPointerDown detected!");
-        
         // Jeśli nic nie wybrano, nie rób nic
         if (selectedDecorationIndex < 0) return;
 
@@ -59,7 +93,6 @@ public class PutDecorate : MonoBehaviour, IPointerDownHandler
 
     void TryPlaceDecorate(Vector2 localPosition)
     {
-        // Sprawdź czy mamy teksturę maski
         if (maskDisplay == null || maskDisplay.texture == null)
         {
             Debug.LogWarning("Brak przypisanej RawImage z maską!");
@@ -67,32 +100,26 @@ public class PutDecorate : MonoBehaviour, IPointerDownHandler
         }
 
         Texture2D maskTex = maskDisplay.texture as Texture2D;
-        if (maskTex == null) return; // To nie jest Texture2D (np. RenderTexture)
+        if (maskTex == null) return; 
 
-        // 1. Przelicz koordynaty UI na koordynaty Tekstury
-        // Zakładamy, że RectTransform ma ten sam rozmiar co tekstura, lub musimy skalować UV
+        // Przelicz koordynaty
         float normalizedX = (localPosition.x + rectTransform.rect.width * 0.5f) / rectTransform.rect.width;
         float normalizedY = (localPosition.y + rectTransform.rect.height * 0.5f) / rectTransform.rect.height;
 
-        // Sprawdź czy kliknięcie jest w obrębie prostokąta
         if (normalizedX < 0 || normalizedX > 1 || normalizedY < 0 || normalizedY > 1)
             return;
 
-        // 2. Sprawdź piksel maski
         Color pixel = maskTex.GetPixelBilinear(normalizedX, normalizedY);
         
-        // Sprawdzamy jasność (lub alfę)
-        float brightness = (pixel.r + pixel.g + pixel.b) / 3f;
-        // Opcjonalnie sprawdź alfę jeśli używasz przezroczystości
-        if (pixel.a < maskThreshold) brightness = 0; 
-        
-        if (brightness > maskThreshold)
+        // Zmieniono logikę: Sprawdzamy tylko Alfę (przezroczystość).
+        // Dzięki temu można stawiać dekoracje na czarnym tle, o ile nie jest przezroczyste.
+        if (pixel.a > maskThreshold)
         {
             SpawnDecoration(localPosition);
         }
         else
         {
-            Debug.Log("Poza maską (za ciemno)!");
+            Debug.Log("Poza maską (przezroczysto)!");
         }
     }
 
@@ -101,29 +128,39 @@ public class PutDecorate : MonoBehaviour, IPointerDownHandler
         if (selectedDecorationIndex < 0 || selectedDecorationIndex >= decorations.Count) return;
 
         DecorationItem item = decorations[selectedDecorationIndex];
+        int maxCount = GetMaxCount(item.name);
 
         // Sprawdź limit
-        if (item.currentCount >= item.maxCount)
+        if (item.currentCount >= maxCount)
         {
-            Debug.Log($"Osiągnięto limit dla {item.name}! ({item.maxCount})");
+            Debug.Log($"Osiągnięto limit dla {item.name}! (Masz tylko {maxCount})");
             return;
         }
 
-        // 1. Stwórz obiekt
         if (item.prefab != null && decorationsContainer != null)
         {
             GameObject newDeco = Instantiate(item.prefab, decorationsContainer);
-            
-            // 2. Ustaw pozycję
             newDeco.transform.localPosition = localPosition;
             
-            // 3. Zwiększ licznik
             item.currentCount++;
-            Debug.Log($"Postawiono {item.name}. Pozostało: {item.maxCount - item.currentCount}");
+            
+            // Logika aktualizacji MaskData
+            if (maskData != null)
+            {
+                // Używamy nazwy z listy, upewnij się że pasuje do switcha
+                string n = item.name;
+                
+                if(n == "Diamond" || n == "Diament") maskData.diamondsUsed++;
+                else if(n == "Feather" || n == "Pioro") maskData.feathersUsed++;
+                else if(n == "Flower" || n == "Kwiat") maskData.flowersUsed++;
+                else if(n == "Leaf" || n == "Lisc") maskData.leavesUsed++;
+                else if(n == "Star" || n == "Gwiazdka") maskData.starsUsed++;
+            }
+
+            Debug.Log($"Postawiono {item.name}. Pozostało: {maxCount - item.currentCount}");
         }
     }
     
-    // Funkcja do resetowania dekoracji
     public void ClearDecorations()
     {
         if (decorationsContainer != null)
@@ -138,5 +175,84 @@ public class PutDecorate : MonoBehaviour, IPointerDownHandler
         {
             item.currentCount = 0;
         }
+        
+        // Resetujemy też w MaskData? (zależy od logiki gry, na razie nie ruszam persistent data)
+        // Jeśli chcesz resetować MaskData:
+        // if(maskData != null) { maskData.diamondsUsed = 0; ... }
+    }
+
+    [ContextMenu("Zapisz Dekoracje do PNG")]
+    public void SaveWithDecorations()
+    {
+        if (maskDisplay == null || maskDisplay.texture == null)
+        {
+            Debug.LogError("Brak tekstury maski do zapisu!");
+            return;
+        }
+
+        Texture2D baseTex = maskDisplay.texture as Texture2D;
+        if (baseTex == null) return;
+
+        Texture2D resultTex = new Texture2D(baseTex.width, baseTex.height);
+        resultTex.SetPixels(baseTex.GetPixels());
+        resultTex.Apply();
+
+        foreach (Transform child in decorationsContainer)
+        {
+            Image img = child.GetComponent<Image>();
+            if (img == null || img.sprite == null) continue;
+
+            RectTransform childRect = child.GetComponent<RectTransform>();
+            Vector2 localPos = child.localPosition; 
+            
+            int texX = (int)(localPos.x + baseTex.width * 0.5f);
+            int texY = (int)(localPos.y + baseTex.height * 0.5f);
+            
+            int decoWidth = (int)childRect.rect.width;
+            int decoHeight = (int)childRect.rect.height;
+            
+            int startX = texX - decoWidth / 2;
+            int startY = texY - decoHeight / 2;
+            
+            Sprite sprite = img.sprite;
+            Texture2D spriteTex = sprite.texture;
+            Rect spriteRect = sprite.rect;
+
+            for (int y = 0; y < decoHeight; y++)
+            {
+                for (int x = 0; x < decoWidth; x++)
+                {
+                    int targetX = startX + x;
+                    int targetY = startY + y;
+
+                    if (targetX >= 0 && targetX < baseTex.width && targetY >= 0 && targetY < baseTex.height)
+                    {
+                        float u = (spriteRect.x + ((float)x / decoWidth) * spriteRect.width) / spriteTex.width;
+                        float v = (spriteRect.y + ((float)y / decoHeight) * spriteRect.height) / spriteTex.height;
+                        
+                        Color decoColor = spriteTex.GetPixelBilinear(u, v);
+                        
+                        if (decoColor.a > 0)
+                        {
+                            Color baseColor = resultTex.GetPixel(targetX, targetY);
+                            Color blendedColor = Color.Lerp(baseColor, decoColor, decoColor.a);
+                            resultTex.SetPixel(targetX, targetY, blendedColor);
+                        }
+                    }
+                }
+            }
+        }
+        
+        resultTex.Apply();
+
+        byte[] bytes = resultTex.EncodeToPNG();
+        string path = Path.Combine(Application.dataPath, "GeneratedMasks", "painted_mask.png");
+        File.WriteAllBytes(path, bytes);
+        
+        Debug.Log($"Zapisano maskę z dekoracjami: {path}");
+        
+#if UNITY_EDITOR
+        UnityEditor.AssetDatabase.Refresh();
+#endif
     }
 }
