@@ -2,13 +2,13 @@ using UnityEngine;
 
 public class MachineActivator : MonoBehaviour
 {
-    public Canvas machineUICanvas;
+    public GameObject machineUICanvas;
     bool isPlayerInRange = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        machineUICanvas.enabled = false;
+        machineUICanvas.SetActive(false);
     }
 
     // Update is called once per frame
@@ -16,15 +16,15 @@ public class MachineActivator : MonoBehaviour
     {
         if(isPlayerInRange && Input.GetKeyDown(KeyCode.E))
         {
-            machineUICanvas.enabled = true;
-            Debug.Log("Toggled machine UI canvas: " + machineUICanvas.enabled);
+            machineUICanvas.SetActive(true);
+            Debug.Log("Toggled machine UI canvas: " + machineUICanvas.active);
             Cursor.visible = true;
             Cursor.lockState = CursorLockMode.None;
         }
         if(isPlayerInRange && Input.GetKeyDown(KeyCode.Escape))
         {
-            machineUICanvas.enabled = false;
-            Debug.Log("Toggled machine UI canvas: " + machineUICanvas.enabled);
+            machineUICanvas.SetActive(false);
+            Debug.Log("Toggled machine UI canvas: " + machineUICanvas.active);
             Cursor.visible = false;
             Cursor.lockState = CursorLockMode.Locked;
         }
