@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using static BuyItem;
 
@@ -14,12 +15,36 @@ public class BuyItem : MonoBehaviour
     
     public PlayerData playerData;
     public BuyItem.ItemType Item;
-    public int cost;
+    public TextMeshProUGUI priceText;
+    public ShopPriceData shopPriceData;
+    int cost;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        switch(Item)
+        {
+            case ItemType.Diamond:
+                priceText.text = "Price: " + shopPriceData.pricePerDiamond + " RUB";
+                cost = shopPriceData.pricePerDiamond;
+                break;
+            case ItemType.Feather:
+                priceText.text = "Price: " + shopPriceData.pricePerFeather + " RUB";
+                cost = shopPriceData.pricePerFeather;
+                break;
+                case ItemType.Star:
+                priceText.text = "Price: " + shopPriceData.pricePerStar + " RUB";
+                cost = shopPriceData.pricePerStar;
+                break;
+                case ItemType.Leaf:
+                priceText.text = "Price: " + shopPriceData.pricePerLeaf + " RUB";
+                cost = shopPriceData.pricePerLeaf;
+                break;
+                case ItemType.Flower:
+                priceText.text = "Price: " + shopPriceData.pricePerFlower + " RUB";
+                cost = shopPriceData.pricePerFlower;
+                break;
+        }
     }
 
     // Update is called once per frame
