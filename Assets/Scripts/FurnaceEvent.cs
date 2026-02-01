@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class FurnaceEvent : MonoBehaviour
 {
@@ -8,11 +9,18 @@ public class FurnaceEvent : MonoBehaviour
     public RectTransform indicator;
     public RectTransform bar;
     public RectTransform target;
+    public TextMeshProUGUI attemptOneText;
+    public TextMeshProUGUI attemptTwoText;
 
     [Header("Settings")]
     bool movingRight = true;
     public float speed = 100f;
     public float barWidth;
+
+    public MaskData maskData;
+
+    private int currentAttempt = 0;
+    private bool isAttemptActive = false;
 
     private float minX;
     private float maxX;
@@ -21,6 +29,23 @@ public class FurnaceEvent : MonoBehaviour
     void Start()
     {
         CalculateBounds();   
+    }
+
+    void OnEnable()
+    {
+        // Automatycznie wystartuj minigame gdy panel się włączy
+        StartMinigame();
+    }
+
+    /// <summary>
+    /// Publiczna metoda do uruchomienia minigame - wywołaj ją gdy włączasz panel podczas gry
+    /// </summary>
+    public void StartMinigame()
+    {
+        // Musimy przeliczyć granice przed startem
+        CalculateBounds();
+        // Rozpocznij pierwszą próbę
+        startFirstAttempt();
     }
 
     void CalculateBounds()
@@ -36,11 +61,13 @@ public class FurnaceEvent : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!isAttemptActive) return;
+
         MoveIndicator();
 
         if (Input.GetKeyDown(KeyCode.E))
         {
-            CheckSuccess();
+            HandleAttempt();
         }
     }
 
@@ -70,7 +97,58 @@ public class FurnaceEvent : MonoBehaviour
         indicator.anchoredPosition = new Vector2(currentX, indicator.anchoredPosition.y);
     }
 
-    void CheckSuccess()
+    public void startFirstAttempt()
+    {
+        currentAttempt = 1;
+        isAttemptActive = true;
+        attemptOneText.text = "Press E!";
+    }
+
+    public void startSecondAttempt()
+    {
+        currentAttempt = 2;
+        isAttemptActive = true;
+        attemptTwoText.text = "Press E!";
+    }
+
+    void HandleAttempt()
+    {
+        bool success = CheckSuccess();
+
+        if (currentAttempt == 1)
+        {
+            if (success)
+            {
+                attemptOneText.text = "Success";
+            }
+            else
+            {
+                attemptOneText.text = "Failure";
+                maskData.burntPercent += 30;
+            }
+
+            isAttemptActive = false;
+            // Automatycznie rozpocznij drugą próbę po zakończeniu pierwszej
+            startSecondAttempt();
+        }
+        else if (currentAttempt == 2)
+        {
+            if (success)
+            {
+                attemptTwoText.text = "Success";
+            }
+            else
+            {
+                attemptTwoText.text = "Failure";
+                maskData.burntPercent += 70;
+            }
+
+            isAttemptActive = false;
+            // Po drugiej próbie kończymy minigame
+        }
+    }
+
+    bool CheckSuccess()
     {
         // Pobieramy granice Target
         float targetPos = target.anchoredPosition.x;
@@ -84,11 +162,12 @@ public class FurnaceEvent : MonoBehaviour
         if (indicatorX >= minX && indicatorX <= maxX)
         {
             Debug.Log("Success!");
-            // TODO: sukces logika
+            return true;
         }
         else
         {
-            // TODO: logika porażki
+            Debug.Log("Failure!");
+            return false;
         }
     }
 

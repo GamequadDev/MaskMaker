@@ -68,7 +68,7 @@ public class MaskData : ScriptableObject
                 worth = (int)(worth * 0.5f);
             }
 
-            if (burntPercent > 60)
+            if (burntPercent > 70)
             {
                 worth = (int)(worth * 0.3f);
             }

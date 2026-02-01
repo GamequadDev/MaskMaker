@@ -31,8 +31,8 @@ public class NewUIHandler : MonoBehaviour
                     infoText.text = "You can't choose mask yet. Please get the order first.";
                 }
                 break;
-            case "PaintPanel":
-                if(ProgressManager.instance.canPaintMask)
+            case "PaintingPanel":
+                if(ProgressManager.instance.canPaintPanel)
                 {
                     canInteract = true;
                 }
@@ -42,7 +42,7 @@ public class NewUIHandler : MonoBehaviour
                 }
                 break;
             case "DecorativePanel":
-                if(ProgressManager.instance.canDecorateMask)
+                if(ProgressManager.instance.canDecoratePanel)
                 {
                     canInteract = true;
                 }
@@ -51,8 +51,8 @@ public class NewUIHandler : MonoBehaviour
                     infoText.text = "You can't decorate mask yet. Please finish previous tasks.";
                 }
                 break;
-            case "BakePanel":
-                if(ProgressManager.instance.canBakeMask)
+            case "FurnacePanel":
+                if(ProgressManager.instance.canBakePanel)
                 {
                     canInteract = true;
                 }
@@ -83,6 +83,10 @@ public class NewUIHandler : MonoBehaviour
             {
                 canInteractWithUI();
                 UIPanel.SetActive(true);
+                if(UIPanel.name == "FurnacePanel")
+                {
+                    UIPanel.GetComponent<FurnaceEvent>().StartMinigame();
+                }
                 BlockUI.instance.ShowCursorAndPauseGame();
             }
         }
