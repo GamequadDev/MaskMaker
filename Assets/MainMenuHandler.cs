@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class MainMenuHandler : MonoBehaviour
@@ -22,7 +23,7 @@ public class MainMenuHandler : MonoBehaviour
 
     public void StartGameOnClick()
     {
-        // Zmiana sceny na scenę gry
+        SceneManager.LoadSceneAsync(1);
     }
 
     public void CreditsOnClick()
