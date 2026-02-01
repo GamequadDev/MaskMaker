@@ -87,11 +87,15 @@ public class LoadMaskButton : MonoBehaviour
     /// </summary>
     public void ShowPaintingPanel()
     {
-        if (paintingPanel != null)
+        /* if (paintingPanel != null)
             paintingPanel.SetActive(true);
             
         if (choosePanel != null)
-            choosePanel.SetActive(false);
+            choosePanel.SetActive(false); */
+        ProgressManager.instance.canPaintPanel = true;
+        ProgressManager.instance.canChoosePanel = false;
+        choosePanel.SetActive(false);
+        BlockUI.instance.HideCursorAndUnpauseGame();
     }
 
     /// <summary>

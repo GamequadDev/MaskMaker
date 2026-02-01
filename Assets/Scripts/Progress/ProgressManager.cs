@@ -2,6 +2,13 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 
+[System.Serializable]
+public class MaskSprite
+{
+    public string maskName;
+    public Sprite sprite;
+}
+
 public class ProgressManager : MonoBehaviour
 {
 
@@ -9,6 +16,9 @@ public class ProgressManager : MonoBehaviour
 
     public MaskData maskData;
     public PlayerData playerData;
+    
+    [Header("Mask Sprites")]
+    public MaskSprite[] maskSprites;
     
     public bool canChooseMask = true;
     public bool canPaintMask = false;
@@ -32,6 +42,11 @@ public class ProgressManager : MonoBehaviour
 
     public GameObject infoPanel;
 
+    public bool canChoosePanel = true;
+    public bool canPaintPanel = false;
+    public bool canDecoratePanel = false;
+    public bool canBakePanel = false;
+
 
     private void Awake()
     {
@@ -43,11 +58,13 @@ public class ProgressManager : MonoBehaviour
         if(Input.GetKeyDown(KeyCode.Q))
         {
             UpdateUI();
+            BlockUI.instance.ShowCursorAndPauseGame();
             infoPanel.SetActive(true);
         }
         if(Input.GetKeyDown(KeyCode.Escape))
         {
             infoPanel.SetActive(false);
+            BlockUI.instance.HideCursorAndUnpauseGame();
         }
     }
 
@@ -63,8 +80,15 @@ public class ProgressManager : MonoBehaviour
 
     public void GetMaskByName(string name)
     {
-        Sprite maskImageFinder = Resources.Load<Sprite>("Masks/" + name);
-        maskImage.GetComponent<Image>().sprite = maskImageFinder;
+        MaskSprite found = System.Array.Find(maskSprites, m => m.maskName == name);
+        if (found != null && found.sprite != null)
+        {
+            maskImage.GetComponent<Image>().sprite = found.sprite;
+        }
+        else
+        {
+            Debug.LogWarning($"Mask sprite not found for: {name}");
+        }
     }
 
     public void UpdateUI()
@@ -88,6 +112,7 @@ public class ProgressManager : MonoBehaviour
     public void CloseInfoPanel()
     {
         infoPanel.SetActive(false);
+        BlockUI.instance.HideCursorAndUnpauseGame();
     }
        
 }

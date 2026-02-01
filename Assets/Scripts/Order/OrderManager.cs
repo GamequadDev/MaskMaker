@@ -9,6 +9,9 @@ public class OrderManager : MonoBehaviour
     public MaskData maskData;
     public ShopPriceData shopPriceData;
     public string[] mask_names;
+    
+    [Header("Mask Sprites")]
+    public MaskSprite[] maskSprites;
 
     public GameObject offerPanel;
 
@@ -98,7 +101,7 @@ public class OrderManager : MonoBehaviour
 
     public void AcceptOffer()
     {
-        
+        BlockUI.instance.HideCursorAndUnpauseGame();
         ProgressManager.instance.UpdateUI();
         maskData.diamondsNeedToUse = offerDiamondsNeedToUse;
         maskData.feathersNeedToUse = offerFeathersNeedToUse;
@@ -112,6 +115,7 @@ public class OrderManager : MonoBehaviour
 
     public void RejectOffer()
     {
+        BlockUI.instance.HideCursorAndUnpauseGame();
         offerPanel.SetActive(false);
     }
 
@@ -129,6 +133,7 @@ public class OrderManager : MonoBehaviour
 
     public void OpenOfferPanel()
     {
+        BlockUI.instance.ShowCursorAndPauseGame();
         offerPanel.SetActive(true);
         GenerateNewOrder();
         textOfferedMoney.text = offerMoney.ToString();
@@ -142,8 +147,15 @@ public class OrderManager : MonoBehaviour
 
     public void GetMaskByName(string name)
     {
-        Sprite maskImageFinder = Resources.Load<Sprite>("Masks/" + name);
-        maskImage.GetComponent<Image>().sprite = maskImageFinder;
+        MaskSprite found = System.Array.Find(maskSprites, m => m.maskName == name);
+        if (found != null && found.sprite != null)
+        {
+            maskImage.GetComponent<Image>().sprite = found.sprite;
+        }
+        else
+        {
+            Debug.LogWarning($"Mask sprite not found for: {name}");
+        }
     }
 
 
