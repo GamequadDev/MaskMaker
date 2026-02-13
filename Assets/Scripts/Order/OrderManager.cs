@@ -108,6 +108,8 @@ public class OrderManager : MonoBehaviour
         {
             currentCustomer.OnOrderAccepted();
         }
+
+        ProgressManager.instance.UpdateUI();
     }
 
     public void RejectOffer()

@@ -35,11 +35,14 @@ public class MaskGenerator : MonoBehaviour
     public int regionSize = 20;
     
     [Header("Generator")]
-    [Tooltip("Referencja do MasksHolder z listami gotowych masek")]
+    [Tooltip("[OPCJONALNY] Referencja do MasksHolder - jeśli puste, używa Resources.Load()")]
     public MasksHolder masksHolder;
     
     [Tooltip("Opcjonalny RawImage do wyświetlenia wygenerowanej maski")]
     public RawImage previewImage;
+    
+    // Cache dla wczytanych masek z Resources
+    private static System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<Texture2D>> cachedResourceMasks = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<Texture2D>>();
     
 
     
@@ -122,30 +125,39 @@ public class MaskGenerator : MonoBehaviour
     }
     
     /// <summary>
-    /// Próbuje pobrać gotową maskę z MasksHolder na podstawie nazwy wybranej maski
+    /// Próbuje pobrać gotową maskę z MasksHolder lub Resources
+    /// Najpierw sprawdza MasksHolder (jeśli przypisany), potem próbuje Resources.LoadAll()
     /// </summary>
     private bool TryUsePredefinedMask()
     {
-        if (masksHolder == null) return false;
-
         string maskName = maskTexture.name;
         Texture2D predefinedTexture = null;
         System.Collections.Generic.List<Texture2D> targetList = null;
 
-        // Dopasuj listę na podstawie nazwy (zakładamy "Mask_1", "Mask_2" itd.)
-        if (maskName.Contains("Mask_1")) targetList = masksHolder.masksFirst;
-        else if (maskName.Contains("Mask_2")) targetList = masksHolder.masksSecond;
-        else if (maskName.Contains("Mask_3")) targetList = masksHolder.masksThird;
-        else if (maskName.Contains("Mask_4")) targetList = masksHolder.masksFourth;
-        else if (maskName.Contains("Mask_5")) targetList = masksHolder.masksFifth;
-
-        // Jeśli znaleziono listę i ma ona element
-        if (targetList != null && targetList.Count > 0)
+        // Opcja 1: Sprawdź MasksHolder (jeśli przypisany)
+        if (masksHolder != null)
         {
-            predefinedTexture = targetList[0];
-            targetList.RemoveAt(0); // Usuń wykorzystaną
-            
-            Debug.Log($"MaskGenerator: Używam gotowej maski dla {maskName} (zostało {targetList.Count})");
+            // Dopasuj listę na podstawie nazwy (zakładamy "Mask_1", "Mask_2" itd.)
+            if (maskName.Contains("Mask_1")) targetList = masksHolder.masksFirst;
+            else if (maskName.Contains("Mask_2")) targetList = masksHolder.masksSecond;
+            else if (maskName.Contains("Mask_3")) targetList = masksHolder.masksThird;
+            else if (maskName.Contains("Mask_4")) targetList = masksHolder.masksFourth;
+            else if (maskName.Contains("Mask_5")) targetList = masksHolder.masksFifth;
+
+            // Jeśli znaleziono listę i ma ona element
+            if (targetList != null && targetList.Count > 0)
+            {
+                predefinedTexture = targetList[0];
+                targetList.RemoveAt(0); // Usuń wykorzystaną
+                
+                Debug.Log($"MaskGenerator: Używam gotowej maski z MasksHolder dla {maskName} (zostało {targetList.Count})");
+            }
+        }
+        
+        // Opcja 2: Jeśli nie znaleziono w MasksHolder, spróbuj z Resources
+        if (predefinedTexture == null)
+        {
+            predefinedTexture = LoadMaskFromResources(maskName);
         }
 
         if (predefinedTexture != null)
@@ -163,6 +175,66 @@ public class MaskGenerator : MonoBehaviour
         }
 
         return false;
+    }
+    
+    /// <summary>
+    /// Wczytuje maskę z folderu Resources/GeneratedMasks/
+    /// Struktura: Resources/GeneratedMasks/Mask_1/, Resources/GeneratedMasks/Mask_2/, itd.
+    /// </summary>
+    private Texture2D LoadMaskFromResources(string maskName)
+    {
+        // Wyciągnij klucz (np. "Mask_1" z "Mask_1_outline")
+        string resourceKey = ExtractMaskKey(maskName);
+        if (string.IsNullOrEmpty(resourceKey))
+        {
+            return null;
+        }
+        
+        // Sprawdź cache
+        if (!cachedResourceMasks.ContainsKey(resourceKey))
+        {
+            // Wczytaj wszystkie maski dla tego klucza
+            string resourcePath = $"GeneratedMasks/{resourceKey}";
+            Texture2D[] loadedMasks = Resources.LoadAll<Texture2D>(resourcePath);
+            
+            if (loadedMasks != null && loadedMasks.Length > 0)
+            {
+                cachedResourceMasks[resourceKey] = new System.Collections.Generic.List<Texture2D>(loadedMasks);
+                Debug.Log($"MaskGenerator: Wczytano {loadedMasks.Length} masek z Resources/{resourcePath}");
+            }
+            else
+            {
+                Debug.LogWarning($"MaskGenerator: Nie znaleziono masek w Resources/{resourcePath}");
+                return null;
+            }
+        }
+        
+        // Pobierz pierwszą dostępną maskę z cache
+        if (cachedResourceMasks[resourceKey].Count > 0)
+        {
+            Texture2D texture = cachedResourceMasks[resourceKey][0];
+            cachedResourceMasks[resourceKey].RemoveAt(0);
+            
+            Debug.Log($"MaskGenerator: Używam maski z Resources dla {maskName} (zostało {cachedResourceMasks[resourceKey].Count})");
+            return texture;
+        }
+        
+        Debug.LogWarning($"MaskGenerator: Brak dostępnych masek dla {resourceKey}");
+        return null;
+    }
+    
+    /// <summary>
+    /// Wyciąga klucz maski (np. "Mask_1" z "Mask_1_outline")
+    /// </summary>
+    private string ExtractMaskKey(string maskName)
+    {
+        if (maskName.Contains("Mask_1")) return "Mask_1";
+        if (maskName.Contains("Mask_2")) return "Mask_2";
+        if (maskName.Contains("Mask_3")) return "Mask_3";
+        if (maskName.Contains("Mask_4")) return "Mask_4";
+        if (maskName.Contains("Mask_5")) return "Mask_5";
+        
+        return null;
     }
     
     /// <summary>
@@ -335,8 +407,8 @@ public class MaskGenerator : MonoBehaviour
             return;
         }
         
-        // Utwórz folder jeśli nie istnieje
-        string folderPath = "Assets/GeneratedMasks";
+        // Użyj persistentDataPath - działa zarówno w edytorze jak i w buildzie
+        string folderPath = System.IO.Path.Combine(Application.persistentDataPath, "GeneratedMasks");
         if (!System.IO.Directory.Exists(folderPath))
         {
             System.IO.Directory.CreateDirectory(folderPath);
@@ -348,27 +420,15 @@ public class MaskGenerator : MonoBehaviour
         int targetHeight = generatedTexture.height * 2;
         Texture2D scaledTexture = ScaleTexture(generatedTexture, targetWidth, targetHeight);
         
-        // Zapisz jako PNG
+        // Zapisz jako PNG z timestamp aby uniknąć nadpisywania
+        string timestamp = System.DateTime.Now.ToString("yyyyMMdd_HHmmss");
+        string fileName = $"generated_mask_{timestamp}.png";
+        string filePath = System.IO.Path.Combine(folderPath, fileName);
+        
         byte[] pngData = scaledTexture.EncodeToPNG();
-        string filePath = folderPath + "/generated_mask.png";
         System.IO.File.WriteAllBytes(filePath, pngData);
         
-#if UNITY_EDITOR
-        UnityEditor.AssetDatabase.Refresh();
-        
-        // Ustaw import settings aby tekstura nie była kompresowana
-        UnityEditor.TextureImporter importer = UnityEditor.AssetImporter.GetAtPath(filePath) as UnityEditor.TextureImporter;
-        if (importer != null)
-        {
-            importer.textureCompression = UnityEditor.TextureImporterCompression.Uncompressed;
-            importer.isReadable = true;
-            UnityEditor.AssetDatabase.ImportAsset(filePath, UnityEditor.ImportAssetOptions.ForceUpdate);
-        }
-        
         Debug.Log($"✓ Zapisano wygenerowaną maskę: {filePath} (skalowana {generatedTexture.width}x{generatedTexture.height} → {targetWidth}x{targetHeight})");
-#else
-        Debug.Log($"✓ Zapisano wygenerowaną maskę: {filePath}");
-#endif
     }
     
     /// <summary>

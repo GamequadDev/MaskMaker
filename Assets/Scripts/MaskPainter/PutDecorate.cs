@@ -245,14 +245,21 @@ public class PutDecorate : MonoBehaviour, IPointerDownHandler
         
         resultTex.Apply();
 
+        // Użyj persistentDataPath - działa zarówno w edytorze jak i w buildzie
+        string folderPath = Path.Combine(Application.persistentDataPath, "GeneratedMasks");
+        if (!Directory.Exists(folderPath))
+        {
+            Directory.CreateDirectory(folderPath);
+        }
+        
+        // Zapisz z timestampem aby uniknąć nadpisywania
+        string timestamp = System.DateTime.Now.ToString("yyyyMMdd_HHmmss");
+        string fileName = $"painted_mask_{timestamp}.png";
+        string path = Path.Combine(folderPath, fileName);
+        
         byte[] bytes = resultTex.EncodeToPNG();
-        string path = Path.Combine(Application.dataPath, "GeneratedMasks", "painted_mask.png");
         File.WriteAllBytes(path, bytes);
         
         Debug.Log($"Zapisano maskę z dekoracjami: {path}");
-        
-#if UNITY_EDITOR
-        UnityEditor.AssetDatabase.Refresh();
-#endif
     }
 }

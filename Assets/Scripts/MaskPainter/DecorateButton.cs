@@ -50,7 +50,19 @@ public class DecorateButton : MonoBehaviour
 
     private void LoadPaintedMask()
     {
-        string filePath = Path.Combine(Application.dataPath, "GeneratedMasks", "painted_mask.png");
+        // Użyj persistentDataPath - działa w buildzie
+        string folderPath = Path.Combine(Application.persistentDataPath, "GeneratedMasks");
+        
+        // Szukaj najnowszego pliku painted_mask (z timestampem)
+        string filePath = FindLatestPaintedMask(folderPath);
+        
+        if (string.IsNullOrEmpty(filePath))
+        {
+            Debug.LogWarning($"DecorateButton: Brak painted_mask.png. Ładuję szablon...");
+            LoadFallbackTemplate();
+            return;
+        }
+        
         Debug.Log($"DecorateButton: Szukam namalowanej maski w: {filePath}");
 
         if (File.Exists(filePath))
@@ -116,44 +128,63 @@ public class DecorateButton : MonoBehaviour
             return;
         }
         
-#if UNITY_EDITOR
-        string assetPath = $"Assets/Art/Masks/{maskName}.png";
-        Debug.Log($"DecorateButton: Próba wczytania z AssetDatabase: {assetPath}");
+        // Użyj Resources.Load - działa zarówno w edytorze jak i w buildzie
+        string resourcePath = $"Art/Masks/{maskName}";
+        Debug.Log($"DecorateButton: Próba wczytania z Resources: {resourcePath}");
         
-        Texture2D fallbackTexture = UnityEditor.AssetDatabase.LoadAssetAtPath<Texture2D>(assetPath);
+        Texture2D fallbackTexture = Resources.Load<Texture2D>(resourcePath);
         if (fallbackTexture != null)
         {
             if (maskPreview != null)
             {
                 maskPreview.texture = fallbackTexture;
-                Debug.Log($"DecorateButton: ✓ Wczytano szablon: {assetPath}");
+                Debug.Log($"DecorateButton: ✓ Wczytano szablon z Resources: {resourcePath}");
             }
         }
         else
         {
-            Debug.LogError($"DecorateButton: Nie znaleziono szablonu w: {assetPath}");
+            Debug.LogError($"DecorateButton: Nie znaleziono szablonu w Resources: {resourcePath}");
         }
-#else
-        string fallbackPath = Path.Combine(Application.dataPath, "Art/Masks", maskName + ".png");
-        Debug.Log($"DecorateButton: Próba wczytania z dysku: {fallbackPath}");
+    }
+    
+    /// <summary>
+    /// Znajduje najnowszy plik painted_mask w folderze (z timestampem lub bez)
+    /// </summary>
+    private string FindLatestPaintedMask(string folderPath)
+    {
+        if (!Directory.Exists(folderPath))
+        {
+            return null;
+        }
         
-        if (File.Exists(fallbackPath))
+        // Szukaj plików pasujących do wzorca
+        string[] files = Directory.GetFiles(folderPath, "painted_mask*.png");
+        
+        if (files.Length == 0)
         {
-            byte[] fallbackData = File.ReadAllBytes(fallbackPath);
-            Texture2D fallbackTexture = new Texture2D(2, 2);
-            if (fallbackTexture.LoadImage(fallbackData))
+            return null;
+        }
+        
+        // Jeśli jest tylko jeden, zwróć go
+        if (files.Length == 1)
+        {
+            return files[0];
+        }
+        
+        // Jeśli więcej, znajdź najnowszy (po dacie modyfikacji)
+        string latestFile = files[0];
+        System.DateTime latestTime = File.GetLastWriteTime(files[0]);
+        
+        for (int i = 1; i < files.Length; i++)
+        {
+            System.DateTime fileTime = File.GetLastWriteTime(files[i]);
+            if (fileTime > latestTime)
             {
-                if (maskPreview != null)
-                {
-                    maskPreview.texture = fallbackTexture;
-                    Debug.Log($"DecorateButton: ✓ Wczytano szablon: {fallbackPath}");
-                }
+                latestTime = fileTime;
+                latestFile = files[i];
             }
         }
-        else
-        {
-            Debug.LogError($"DecorateButton: Nie znaleziono szablonu: {fallbackPath}");
-        }
-#endif
+        
+        return latestFile;
     }
 }

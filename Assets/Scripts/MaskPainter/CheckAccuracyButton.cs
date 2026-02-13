@@ -12,6 +12,12 @@ public class CheckAccuracyButton : MonoBehaviour
     [Tooltip("MaskSimilarityChecker który sprawdza podobieństwo")]
     public MaskSimilarityChecker similarityChecker;
     
+    [Tooltip("MaskGenerator - źródło wygenerowanej maski (wzór)")]
+    public MaskGenerator maskGenerator;
+    
+    [Tooltip("MaskLinePainter - źródło namalowanej maski (gracza)")]
+    public MaskLinePainter maskLinePainter;
+    
     [Tooltip("Text UI gdzie zostanie wyświetlony wynik (dla standardowego UI.Text)")]
     public Text resultText;
     
@@ -56,8 +62,42 @@ public class CheckAccuracyButton : MonoBehaviour
             return;
         }
         
-        // Sprawdź podobieństwo
-        float accuracy = similarityChecker.CheckSimilarity();
+        // Pobierz tekstury bezpośrednio z generatorów
+        Texture2D generatedTexture = null;
+        Texture2D paintedTexture = null;
+        
+        if (maskGenerator != null)
+        {
+            generatedTexture = maskGenerator.generatedTexture;
+        }
+        else
+        {
+            Debug.LogError("CheckAccuracyButton: Nie przypisano MaskGenerator!");
+            DisplayResult("ERROR: Brak MaskGenerator!");
+            return;
+        }
+        
+        if (maskLinePainter != null)
+        {
+            // Pobierz drawableTexture z MaskLinePainter (musimy dodać publiczny getter)
+            paintedTexture = maskLinePainter.GetDrawableTexture();
+        }
+        else
+        {
+            Debug.LogError("CheckAccuracyButton: Nie przypisano MaskLinePainter!");
+            DisplayResult("ERROR: Brak MaskLinePainter!");
+            return;
+        }
+        
+        if (generatedTexture == null || paintedTexture == null)
+        {
+            Debug.LogError("CheckAccuracyButton: Jedna z tekstur jest null!");
+            DisplayResult("ERROR: Brak tekstur do porównania!");
+            return;
+        }
+        
+        // Użyj nowej metody z Texture2D
+        float accuracy = similarityChecker.CheckSimilarity(generatedTexture, paintedTexture);
         
         if (maskData != null)
         {

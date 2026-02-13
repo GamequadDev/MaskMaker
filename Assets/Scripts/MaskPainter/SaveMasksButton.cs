@@ -70,7 +70,7 @@ public class SaveMasksButton : MonoBehaviour
         
         if (success)
         {
-            Debug.Log("✓ Obie maski zapisane pomyślnie jako PNG w Assets/GeneratedMasks/!");
+            Debug.Log("✓ Obie maski zapisane pomyślnie jako PNG w persistentDataPath/GeneratedMasks/!");
             paintingPanel.SetActive(false);
             infoPanel.SetActive(true);
         }

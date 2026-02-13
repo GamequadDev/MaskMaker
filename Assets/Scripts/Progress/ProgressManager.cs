@@ -83,15 +83,32 @@ public class ProgressManager : MonoBehaviour
 
     public void GetMaskByName(string name)
     {
+        if (string.IsNullOrEmpty(name))
+        {
+            Debug.LogWarning("GetMaskByName: nazwa maski jest pusta!");
+            return;
+        }
+        
+        // Opcja 1: Spróbuj z ręcznie przypisanej listy
         MaskSprite found = System.Array.Find(maskSprites, m => m.maskName == name);
         if (found != null && found.sprite != null)
         {
             maskImage.GetComponent<Image>().sprite = found.sprite;
+            Debug.Log($"GetMaskByName: Wczytano maskę '{name}' z listy maskSprites");
+            return;
         }
-        else
+        
+        // Opcja 2: Spróbuj z Resources jako fallback
+        Sprite resourceSprite = Resources.Load<Sprite>($"Art/Masks/{name}");
+        if (resourceSprite != null)
         {
-            Debug.LogWarning($"Mask sprite not found for: {name}");
+            maskImage.GetComponent<Image>().sprite = resourceSprite;
+            Debug.Log($"GetMaskByName: Wczytano maskę '{name}' z Resources");
+            return;
         }
+        
+        // Jeśli nic nie zadziałało, pokaż błąd z większymi szczegółami
+        Debug.LogWarning($"Mask sprite not found for: '{name}' (sprawdzono: maskSprites array i Resources/Art/Masks/)");
     }
 
     public void UpdateUI()

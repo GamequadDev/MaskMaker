@@ -186,35 +186,31 @@ public class MaskLinePainter : MonoBehaviour, IPointerDownHandler, IDragHandler
             return;
         }
         
-        // Utwórz folder jeśli nie istnieje
-        string folderPath = "Assets/GeneratedMasks";
+        // Użyj persistentDataPath - działa zarówno w edytorze jak i w buildzie
+        string folderPath = System.IO.Path.Combine(Application.persistentDataPath, "GeneratedMasks");
         if (!System.IO.Directory.Exists(folderPath))
         {
             System.IO.Directory.CreateDirectory(folderPath);
             Debug.Log($"Utworzono folder: {folderPath}");
         }
         
-        // Zapisz jako PNG
+        // Zapisz jako PNG z timestamp aby uniknąć nadpisywania
+        string timestamp = System.DateTime.Now.ToString("yyyyMMdd_HHmmss");
+        string fileName = $"painted_mask_{timestamp}.png";
+        string filePath = System.IO.Path.Combine(folderPath, fileName);
+        
         byte[] pngData = drawableTexture.EncodeToPNG();
-        string filePath = folderPath + "/painted_mask.png";
         System.IO.File.WriteAllBytes(filePath, pngData);
         
-#if UNITY_EDITOR
-        UnityEditor.AssetDatabase.Refresh();
-        
-        // Ustaw import settings aby tekstura nie była kompresowana
-        UnityEditor.TextureImporter importer = UnityEditor.AssetImporter.GetAtPath(filePath) as UnityEditor.TextureImporter;
-        if (importer != null)
-        {
-            importer.textureCompression = UnityEditor.TextureImporterCompression.Uncompressed;
-            importer.isReadable = true;
-            UnityEditor.AssetDatabase.ImportAsset(filePath, UnityEditor.ImportAssetOptions.ForceUpdate);
-        }
-        
         Debug.Log($"✓ Zapisano namalowaną maskę: {filePath}");
-#else
-        Debug.Log($"✓ Zapisano namalowaną maskę: {filePath}");
-#endif
+    }
+    
+    /// <summary>
+    /// Publiczny getter dla drawableTexture - używany przez CheckAccuracyButton
+    /// </summary>
+    public Texture2D GetDrawableTexture()
+    {
+        return drawableTexture;
     }
 }
 

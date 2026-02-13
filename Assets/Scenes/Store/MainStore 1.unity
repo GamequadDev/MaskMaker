@@ -5009,6 +5009,14 @@ PrefabInstance:
       value: -300
       objectReference: {fileID: 0}
     - target: {fileID: 418084648384067345, guid: 7d1930a987cf762429715684925e8551, type: 3}
+      propertyPath: maskGenerator
+      value: 
+      objectReference: {fileID: 364709770}
+    - target: {fileID: 418084648384067345, guid: 7d1930a987cf762429715684925e8551, type: 3}
+      propertyPath: maskLinePainter
+      value: 
+      objectReference: {fileID: 1481663080}
+    - target: {fileID: 418084648384067345, guid: 7d1930a987cf762429715684925e8551, type: 3}
       propertyPath: similarityChecker
       value: 
       objectReference: {fileID: 656785350}
@@ -5134,7 +5142,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6889463658327998222, guid: 7d1930a987cf762429715684925e8551, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -0.000061035156
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6889463658327998222, guid: 7d1930a987cf762429715684925e8551, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -10710,7 +10718,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6070152122916201767, guid: 4e84f8879e5816a418c4c9cb9a6d77fb, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -0.000061035156
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6070152122916201767, guid: 4e84f8879e5816a418c4c9cb9a6d77fb, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -14195,7 +14203,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2016901474}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 586885998}
+        m_TargetAssemblyTypeName: SellMask, Assembly-CSharp
+        m_MethodName: SellMaskFunction
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &2016901474
 MonoBehaviour:
   m_ObjectHideFlags: 0
